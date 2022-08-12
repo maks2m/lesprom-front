@@ -1,6 +1,8 @@
 <template>
   <app-header/>
-  <router-view style="padding-top: 70px"/>
+  <div style="padding-top: 60px">
+    <router-view/>
+  </div>
 </template>
 
 <script>

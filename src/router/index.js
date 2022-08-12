@@ -7,6 +7,9 @@ import WorkplaceView from '../views/WorkplaceView'
 import EmployeeView from '../views/EmployeeView'
 import UserView from '../views/UserView'
 import RoleView from '../views/RoleView'
+import PageNotFoundView from '../views/PageNotFoundView'
+
+import EditView from "@/views/EditView";
 
 const routes = [
   {
@@ -45,10 +48,20 @@ const routes = [
     component: UserView
   },
   {
+    path: '/user/:id',
+    name: 'edit-user',
+    component: EditView
+  },
+  {
     path: '/role',
     name: 'role',
     component: RoleView
   },
+  //  всегда в конце
+  {
+    path: '/:any(.*)',
+    component: PageNotFoundView
+  }
 ]
 
 const router = createRouter({

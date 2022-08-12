@@ -7,26 +7,13 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+<!--
           <li class="nav-item">
             <router-link class="nav-link active" aria-current="page" to="/order">Orders</router-link>
           </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/baguette">Baguettes</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/cutter">Cutters</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/workplace">Workplaces</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/employee">Employees</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/user">Users</router-link>
-          </li>
-          <li  class="nav-item">
-            <router-link class="nav-link" to="/role">Roles</router-link>
+-->
+          <li  class="nav-item" v-for="item in menu" :key="item.text">
+            <router-link class="nav-link" :to="{ name: item.route }" exact-active-class="active">{{ item.text }}</router-link>
           </li>
         </ul>
         <span class="navbar-text ms-2 me-2" >Username</span>
@@ -40,7 +27,20 @@
 
 <script>
 export default {
-  name: "header"
+  name: "header",
+  data() {
+    return {
+      menu: [
+        { route: 'order', text: 'Order'},
+        { route: 'baguette', text: 'Baguette'},
+        { route: 'cutter', text: 'Cutter'},
+        { route: 'workplace', text: 'Workplace'},
+        { route: 'employee', text: 'Employee'},
+        { route: 'user', text: 'User'},
+        { route: 'role', text: 'Role'},
+      ]
+    }
+  }
 }
 </script>
 
