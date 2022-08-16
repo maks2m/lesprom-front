@@ -4,29 +4,29 @@ export default {
         users: stub(),
     },
     getters: {
-        users(state) {
+        getAllItems(state) {
             return state.users;
         },
-        getUser(state){
+        getOneItem(state){
             return function(id){
                 return state.users.some(item => item.id == id);
             }
         },
     },
     mutations: {
-        addUser(state, user) {
-            state.users.push(user);
+        add(state, item) {
+            state.users.push(item);
         },
-        removeUser(state, id){
+        remove(state, id){
             state.users = state.users.filter(item => item.id != id);
         },
     },
     actions: {
-        add({ commit, getters }, user){
-            commit('addUser', user);
+        add({ commit, getters }, item){
+            commit('add', item);
         },
         remove({ commit, getters }, id){
-            commit('removeUser', id);
+            commit('remove', id);
         },
     },
     modules: {
@@ -86,11 +86,3 @@ function stub() {
     ];
 }
 
-/*
-        axios
-            .get('http://localhost:8080/api/user')
-            .then(response => (this.users = response.data));
-        axios
-            .get('http://localhost:8080/api/role')
-            .then(response => (this.roles = response.data));
-    */

@@ -73,8 +73,8 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', { users: 'users', getUser: 'getUser' }),
-    ...mapGetters('role', { roles: 'roles' }),
+    ...mapGetters('user', { users: 'getAllItems', getUser: 'getOneItem' }),
+    ...mapGetters('role', { roles: 'getAllItems' }),
   },
   methods: {
     ...mapActions('user', { save: 'add', del: 'remove' }),

@@ -9,7 +9,10 @@ import UserView from '../views/UserView'
 import RoleView from '../views/RoleView'
 import PageNotFoundView from '../views/PageNotFoundView'
 
+import Login from "@/views/Login";
 import EditView from "@/views/EditView";
+
+import store from "@/store";
 
 const routes = [
   {
@@ -18,14 +21,22 @@ const routes = [
     component: HomeView
   },
   {
+    path: '/login',
+    name: 'login',
+    component: Login
+  },
+  {
     path: '/order',
     name: 'order',
-    component: OrderView
+    component: OrderView,
   },
   {
     path: '/baguette',
     name: 'baguette',
-    component: BaguetteView
+    component: BaguetteView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/cutter',
@@ -70,3 +81,15 @@ const router = createRouter({
 })
 
 export default router
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (store.getters.isAuthenticated) {
+      next();
+      return;
+    }
+    next("/login");
+  } else {
+    next();
+  }
+});

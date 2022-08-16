@@ -17,9 +17,12 @@
           </li>
         </ul>
         <span class="navbar-text ms-2 me-2" >Username</span>
-        <form>
-          <button class="btn btn-sm btn-outline-secondary" type="submit">Sign Out</button>
-        </form>
+        <span v-if="isLoggedIn">
+          <a class="btn btn-sm btn-outline-secondary" @click="logout">Sign Out</a>
+        </span>
+        <span v-else>
+          <router-link class="btn btn-sm btn-outline-secondary" :to="{ name: 'login' }" exact-active-class="active">Sing In</router-link>
+        </span>
       </div>
     </div>
   </nav>
@@ -40,7 +43,20 @@ export default {
         { route: 'role', text: 'Role'},
       ]
     }
-  }
+  },
+  computed : {
+    isLoggedIn : function() {
+      return this.$store.getters.isLoggedIn;
+    }
+  },
+  methods: {
+    logout: function () {
+      this.$store.dispatch('logout')
+          .then(() => {
+            this.$router.push('/login')
+          })
+    }
+  },
 }
 </script>
 
