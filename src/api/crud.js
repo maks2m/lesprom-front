@@ -1,9 +1,9 @@
-import axios from "axios";
+import store from "@/store";
 
 export default function(instance) {
     return {
         getAll(url) {
-            return instance.get(url);
+            return instance.get(url)
         },
         get(url, id) {
             return instance.get(url + `/${id}`);
@@ -15,7 +15,7 @@ export default function(instance) {
             return instance.post(url, {item});
         },
         del(url, id) {
-            return instance.delete(url + `/${id}`)
+            return instance.delete(url + `/${id}`);
         }
     }
 }

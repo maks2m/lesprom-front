@@ -4,8 +4,8 @@ export default {
     namespaced: true,
     state: {
         user: {
-            username: 'elkin',
-            password: 'elkin',
+            username: '',
+            token: '',
             userRole: '',
         },
         isAuthenticated: false,
@@ -24,18 +24,28 @@ export default {
     },
     actions: {
         async login({ commit }, user) {
-            console.log(user.username);
             let rs = await axios
-                .get('http://localhost:8080/api/order',
-                    { auth: { username: user.username, password: user.password } });
+                .post('http://localhost:8080/api/auth/login', {
+                    "username": user.username,
+                    "password": user.password
+                });
             if (rs.status === 200) {
-                commit('setUser', user);
+                commit('setUser', rs.data);
                 commit('setAuthenticated', true);
             }
         },
-        logout({ getters }) {
-            getters.getUser.user = null;
-            getters.isAuthenticated = false;
+        async logout({ commit, getters }) {
+            let rs = await axios
+                .post('http://localhost:8080/api/auth/logout', {}, {
+                    headers: {
+                        Authorization: getters.getUser.token,
+                    }
+                });
+            console.log('logout code ' + rs);
+            let user = {username: '', token: '', userRole: ''};
+            commit('setUser',  user);
+            commit('setAuthenticated', false);
+
         }
     },
     modules: {

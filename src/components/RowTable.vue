@@ -19,7 +19,7 @@
 
 <script>
 export default {
-  name: "RowTable",
+  name: "row-table",
   props: {
     user: { type: Object, required: true },
   },

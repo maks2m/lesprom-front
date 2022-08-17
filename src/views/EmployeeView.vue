@@ -56,7 +56,6 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import store from "@/store";
 
 export default {
   name: "EmployeeView",
@@ -70,16 +69,18 @@ export default {
     ...mapGetters('employee', { employees: 'getAllItems', getEmployee: 'getOneItem' }),
   },
   methods: {
-    ...mapActions('employee', { save: 'add', del: 'remove', getAll: 'findAll'}),
+    ...mapActions('employee', { save: 'add', remove: 'remove', getAll: 'findAll'}),
+    del(id, index) {
+      this.$load(async() => {
+        await this.$api.crud.del('/employee', id).data;
+      })
+      this.remove(index);
+    }
   },
   created() {
-    console.log('1');
-
     this.$load(async() => {
       this.employees = (await this.$api.crud.getAll('/employee')).data
     })
-
-    console.log('2');
   }
 }
 </script>
