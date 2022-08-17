@@ -23,30 +23,17 @@ export default {
         },
     },
     actions: {
-        async login({ commit }, user) {
-            let rs = await axios
-                .post('http://localhost:8080/api/auth/login', {
-                    "username": user.username,
-                    "password": user.password
-                });
-            if (rs.status === 200) {
-                commit('setUser', rs.data);
-                commit('setAuthenticated', true);
-            }
+        setUser({ commit }, user) {
+            commit('setUser', user);
+            commit('setAuthenticated', true);
+            localStorage.setItem('user', JSON.stringify(user));
         },
-        async logout({ commit, getters }) {
-            let rs = await axios
-                .post('http://localhost:8080/api/auth/logout', {}, {
-                    headers: {
-                        Authorization: getters.getUser.token,
-                    }
-                });
-            console.log('logout code ' + rs);
+        deleteUser({ commit }) {
             let user = {username: '', token: '', userRole: ''};
             commit('setUser',  user);
             commit('setAuthenticated', false);
-
-        }
+            localStorage.removeItem('user');
+        },
     },
     modules: {
     },

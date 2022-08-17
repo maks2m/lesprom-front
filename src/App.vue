@@ -15,10 +15,14 @@ export default {
   },
   data() {
     return {
-      counter: 0
+
     }
   },
-
+  mounted() {
+    if (localStorage.getItem('user')) {
+      this.$store.dispatch('authorization/setUser', JSON.parse(localStorage.getItem('user')));
+    }
+  },
 }
 </script>
 

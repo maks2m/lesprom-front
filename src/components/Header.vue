@@ -1,27 +1,35 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/">LESPROM</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <router-link class="navbar-brand" :to="{ name: 'home' }">LESPROM</router-link>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-<!--
-          <li class="nav-item">
-            <router-link class="nav-link active" aria-current="page" to="/order">Orders</router-link>
-          </li>
--->
-          <li  class="nav-item" v-for="item in menu" :key="item.text">
-            <router-link class="nav-link" :to="{ name: item.route }" exact-active-class="active">{{ item.text }}</router-link>
+          <li class="nav-item" v-for="item in menu" :key="item.text">
+            <router-link class="nav-link" :to="{ name: item.route }" exact-active-class="active">{{
+                item.text
+              }}
+            </router-link>
           </li>
         </ul>
-        <span class="navbar-text ms-2 me-2" >Username</span>
+
         <span v-if="isLoggedIn">
-          <a class="btn btn-sm btn-outline-secondary" @click="logout">Sign Out</a>
+          <div class="input-group">
+            <div class="navbar-text me-2">{{ user.username }}</div>
+            <button class="btn btn-sm btn-outline-secondary" @click="logout">Sign Out</button>
+          </div>
         </span>
         <span v-else>
-          <router-link class="btn btn-sm btn-outline-secondary" :to="{ name: 'login' }" exact-active-class="active">Sing In</router-link>
+            <div class="input-group input-group-sm">
+              <input v-model="username" type="text" class="form-control" placeholder="Username" aria-label="Username"
+                     aria-describedby="addon-wrapping">
+              <input v-model="password" type="password" class="form-control" placeholder="Password" aria-label="Password"
+                     aria-describedby="addon-wrapping">
+              <button class="btn btn-sm btn-outline-secondary" @click.prevent="login">Sing In</button>
+            </div>
         </span>
       </div>
     </div>
@@ -29,32 +37,41 @@
 </template>
 
 <script>
+import {mapGetters} from "vuex";
+
 export default {
   name: "header",
   data() {
     return {
+      username: '',
+      password: '',
       menu: [
-        { route: 'order', text: 'Order'},
-        { route: 'baguette', text: 'Baguette'},
-        { route: 'cutter', text: 'Cutter'},
-        { route: 'workplace', text: 'Workplace'},
-        { route: 'employee', text: 'Employee'},
-        { route: 'user', text: 'User'},
-        { route: 'role', text: 'Role'},
+        {route: 'order', text: 'Order'},
+        {route: 'baguette', text: 'Baguette'},
+        {route: 'cutter', text: 'Cutter'},
+        {route: 'workplace', text: 'Workplace'},
+        {route: 'employee', text: 'Employee'},
+        {route: 'user', text: 'User'},
+        {route: 'role', text: 'Role'},
       ]
     }
   },
-  computed : {
-    isLoggedIn : function() {
-      return this.$store.getters['authorization/isAuthenticated'];
-    }
+  computed: {
+    ...mapGetters('authorization', { isLoggedIn: 'isAuthenticated', user: 'getUser' }),
   },
   methods: {
-    logout: function () {
-      this.$store.dispatch('authorization/logout')
-          .then(() => {
-            this.$router.push('/login')
-          })
+    login() {
+      this.$load(async() => {
+        let response = await this.$api.auth.signIn({ username: this.username, password: this.password });
+        this.$store.dispatch('authorization/setUser', response.data);
+      });
+    },
+    logout() {
+      this.$load(async() => {
+        await this.$api.auth.logout();
+        this.$store.dispatch('authorization/deleteUser');
+        this.$router.push('/');
+      });
     }
   },
 }

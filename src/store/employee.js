@@ -11,11 +11,14 @@ export default {
         getAllItems(state) {
             return state.employees;
         },
+/*
         getOneItem(state){
             return function(id){
                 return state.employees.some(item => item.id == id);
             }
         },
+*/
+        getOneItem: state => id => state.employees.find(item => item.id === id),
     },
     mutations: {
         addAll(state, items) {
@@ -42,75 +45,11 @@ export default {
             // api.del(URL, id, this.$store.getters['authorization/getUser']);
             commit('remove', id);
         },
-        findAll({ commit }) {
-            let data;
-            // data = api.findAll(URL, this.$store.getters['authorization/getUser']);
-
+        findAll({ commit }, data) {
             commit('addAll', data);
 
         },
     },
     modules: {
     },
-}
-
-function stub() {
-    return [
-        {
-            id: 1,
-            fullName: 'Алексеев',
-        },
-        {
-            id: 2,
-            fullName: 'Иванов',
-        },
-        {
-            id: 3,
-            fullName: 'Петров',
-        },
-        {
-            id: 4,
-            fullName: 'Сидоров',
-        },
-        {
-            id: 5,
-            fullName: 'Михайлов',
-        },
-        {
-            id: 6,
-            fullName: 'Выбегалло',
-        },
-        {
-            id: 7,
-            fullName: 'Ойра-ойра',
-        },
-        {
-            id: 8,
-            fullName: 'Амперян',
-        },
-        {
-            id: 9,
-            fullName: 'Корнеев',
-        },
-        {
-            id: 10,
-            fullName: 'Привалов',
-        },
-        {
-            id: 11,
-            fullName: 'Кокоберидзе',
-        },
-        {
-            id: 12,
-            fullName: 'Катцман',
-        },
-        {
-            id: 13,
-            fullName: 'Воронин',
-        },
-        {
-            id: 14,
-            fullName: 'Горчаков',
-        },
-    ];
 }

@@ -9,7 +9,6 @@ import UserView from '../views/UserView'
 import RoleView from '../views/RoleView'
 import PageNotFoundView from '../views/PageNotFoundView'
 
-import Login from "@/views/Login";
 import EditView from "@/views/EditView";
 
 import store from "@/store";
@@ -19,11 +18,6 @@ const routes = [
     path: '/',
     name: 'home',
     component: HomeView
-  },
-  {
-    path: '/login',
-    name: 'login',
-    component: Login
   },
   {
     path: '/order',

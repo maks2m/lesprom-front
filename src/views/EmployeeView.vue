@@ -61,7 +61,6 @@ export default {
   name: "EmployeeView",
   data() {
     return {
-      employees: [],
       editUser: '',
     }
   },
@@ -73,13 +72,14 @@ export default {
     del(id, index) {
       this.$load(async() => {
         await this.$api.crud.del('/employee', id).data;
+        this.remove(id);
       })
-      this.remove(index);
+
     }
   },
   created() {
     this.$load(async() => {
-      this.employees = (await this.$api.crud.getAll('/employee')).data
+      this.$store.dispatch('employee/findAll', (await this.$api.crud.getAll('/employee')).data);
     })
   }
 }

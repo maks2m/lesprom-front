@@ -1,18 +1,16 @@
-import axios from "axios";
+import store from "@/store";
 
 export default function(instance) {
     return {
         signIn(payload) {
-            let rs = instance.get('http://localhost:8080/api/order',
-                    { auth: { username: user.username, password: user.password } });
-            if (rs.status === 200) {
-                console.log(rs)
-                commit('setUser', user);
-                commit('setAuthenticated', true);
-            }
+            return instance.post('auth/login', payload);
         },
         logout() {
-            return instance.delete('auth/logout')
+            instance.post('auth/logout', {}, {
+                headers: {
+                    Authorization: store.getters["authorization/getUser"].token,
+                }
+            });
         }
     }
 }
