@@ -1,67 +1,85 @@
+import api from "@/api";
+
+const ENTITY_NAME = 'workplace'
+
+const URL = '/' + ENTITY_NAME;
+const ERROR_REMOVE = 'error (store/' + ENTITY_NAME + '/remove): ';
+const ERROR_REPLACE = 'error (store/' + ENTITY_NAME + '/replace): ';
+const ERROR_FIND_ALL = 'error (store/' + ENTITY_NAME + '/findAll): ';
+const ERROR_ADD_NEW = 'error (store/' + ENTITY_NAME + '/addNew): ';
+
 export default {
     namespaced: true,
     state: {
-        workplaces: stub(),
+        items: [],
     },
     getters: {
         getAllItems(state) {
-            return state.workplaces;
+            return state.items;
         },
+        // параметризированный геттер
         getOneItem(state){
             return function(id){
-                return state.workplaces.some(item => item.id == id);
+                return state.items.find(item => item.id === id);
             }
         },
     },
     mutations: {
-        add(state, item) {
-            state.workplaces.push(item);
+        addAll(state, items) {
+            state.items = items;
+        },
+        addNew(state, item) {
+            state.items.push(item);
         },
         remove(state, id){
-            state.workplaces = state.workplaces.filter(item => item.id != id);
+            state.items = state.items.filter(item => item.id !== id);
         },
+        replace(state, item) {
+            state.items = state.items.map(o => {
+                if (o.id === item.id) {
+                    return item;
+                }
+                return o;
+            });
+
+        }
     },
     actions: {
-        add({ commit, getters }, item){
-            commit('add', item);
+        async add({ commit, getters }, item){
+            if (item.id === '') {
+                try {
+                    const response  = await api.crud.save(URL, item);
+                    commit('addNew', response.data);
+                } catch (e) {
+                    console.log(ERROR_ADD_NEW + e);
+                }
+            } else {
+                try {
+                    const response = await api.crud.update(URL, item);
+                    commit('replace', response.data);
+                } catch (e) {
+                    console.log(ERROR_REPLACE + e);
+                }
+            }
         },
-        remove({ commit, getters }, id){
-            commit('remove', id);
+        async remove({ commit }, id){
+            try {
+                const response = (await api.crud.del(URL, id));
+                commit('remove', id);
+            } catch (e) {
+                console.log(ERROR_REMOVE + e);
+            }
+        },
+        async findAll({ commit }) {
+            try {
+                const response = (await api.crud.getAll(URL));
+                commit('addAll', response.data);
+            } catch (e) {
+                console.log(ERROR_FIND_ALL + e);
+            }
+
         },
     },
     modules: {
     },
-}
-
-function stub() {
-    return [
-        {
-            id: 1,
-            nameWorkplace: 'Столярный участок',
-        },
-        {
-            id: 2,
-            nameWorkplace: 'Участок шлифовки',
-        },
-        {
-            id: 3,
-            nameWorkplace: 'Малярный участок',
-        },
-        {
-            id: 4,
-            nameWorkplace: 'Корпусной участок',
-        },
-        {
-            id: 5,
-            nameWorkplace: 'Участок сборки',
-        },
-        {
-            id: 6,
-            nameWorkplace: 'Участок упаковки',
-        },
-        {
-            id: 7,
-            nameWorkplace: 'Участок отгрузки',
-        },
-    ];
 }

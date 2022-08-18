@@ -1,16 +1,19 @@
 <template>
   <div class="container">
-    <div>
+    <div v-if="isNewItem">
+      <h1>New</h1>
+    </div>
+    <div v-else>
       <h1>Edit</h1>
     </div>
     <form class="row g-3" @submit.prevent="sendForm">
-      <div class="col-md-6">
+      <div class="col-md-6" v-show="!isNewItem">
         <label for="inputId" class="form-label">ID</label>
-        <input type="text" class="form-control" readonly="readonly" id="inputId" :value="employee.id">
+        <input type="text" class="form-control" disabled readonly id="inputId" :value="item.id">
       </div>
       <div class="col-md-6">
-        <label for="inputFullName" class="form-label">Full name</label>
-        <input type="text" class="form-control" id="inputFullName" :value="employee.fullName" @change="inputOnForm">
+        <label for="inputFullName" class="form-label">Role</label>
+        <input type="text" class="form-control" id="inputFullName" :value="item.role" @change="inputOnForm">
       </div>
 
 <!--
@@ -53,7 +56,7 @@
 
 
       <div class="col-12">
-        <button type="submit" class="btn btn-primary">Sign in</button>
+        <button type="submit" class="btn btn-primary">Send</button>
       </div>
     </form>
   </div>
@@ -63,27 +66,33 @@
 import { mapActions } from "vuex";
 
 export default {
-  name: "EditView",
+  name: "RoleEditView",
   data() {
     return {
-      employee: {
+      item: {
         id: '',
-        fullName: '',
+        role: '',
       }
     }
   },
+  computed: {
+    isNewItem() {
+      return this.$route.params.id === '-1'
+    }
+  },
   mounted() {
-    this.employee = this.$store.getters['employee/getOneItem'](Number(this.$route.params.id));
+    if(!this.isNewItem) {
+      this.item = Object.assign({}, this.$store.getters['role/getOneItem'](Number(this.$route.params.id)));
+    }
   },
   methods: {
-    ...mapActions('employee', { addEmployee: 'add' }),
+    ...mapActions('role', { addItem: 'add' }),
     sendForm() {
-      console.log(this.employee);
-      //this.addEmployee(this.employee);
-      //this.$router.push('/employee');
+      this.addItem(this.item);
+      this.$router.push('/role');
     },
     inputOnForm(event) {
-      this.employee.fullName = event.target.value;
+      this.item.role = event.target.value;
     }
 
   }

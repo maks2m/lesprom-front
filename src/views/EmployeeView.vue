@@ -2,8 +2,8 @@
   <div class="container-fluid">
     <div class="row">
       <div class="card-group">
-        <h3 class="text-black m-2">Employees list</h3>
-        <router-link class="btn btn-primary m-2" :to="{ name: 'edit-user', params: {id: 1} }">New user</router-link>
+        <h3 class="text-black m-2">Employee</h3>
+        <router-link class="btn btn-primary m-2" :to="{ name: 'employee-edit', params: {id: -1} }">new</router-link>
       </div>
     </div>
     <table class="table table-striped table-hover table-sm">
@@ -11,18 +11,18 @@
       <tr>
         <th>id</th>
         <th>Full Name</th>
-        <th colspan="2">Edit</th>
+        <th>Edit</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(item, index) in employees" v-if="employees.length">
+      <tr v-for="(item) in items" :key="item.id" v-if="items.length">
         <td v-text="item.id"></td>
         <td v-text="item.fullName"></td>
         <td>
-          <router-link class="btn btn-secondary" :to="{ name: 'edit-user', params: {id: item.id} }">edit</router-link>
-        </td>
-        <td>
-          <button class="btn btn-danger" @click="del(item.id)">delete</button>
+          <div class="btn-group">
+            <router-link class="btn btn-secondary" :to="{ name: 'employee-edit', params: {id: item.id} }">edit</router-link>
+            <button class="btn btn-danger" @click="del(item.id)">delete</button>
+          </div>
         </td>
       </tr>
       <tr v-else>
@@ -44,7 +44,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('employee', { employees: 'getAllItems', getEmployee: 'getOneItem' }),
+    ...mapGetters('employee', { items: 'getAllItems', getItem: 'getOneItem' }),
   },
   methods: {
     ...mapActions('employee', { save: 'add', remove: 'remove', getAll: 'findAll'}),

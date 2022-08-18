@@ -1,49 +1,28 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-2">
-        <h3>Workplaces list</h3>
-      </div>
-      <div class="col">
-        <a href="user/new" class="btn btn-primary">New workplace</a>
+      <div class="card-group">
+        <h3 class="text-black m-2">Workplace</h3>
+        <router-link class="btn btn-primary m-2" :to="{ name: 'workplace-edit', params: {id: -1} }">new</router-link>
       </div>
     </div>
     <table class="table table-striped table-hover table-sm">
       <thead class="table-info">
       <tr>
         <th>id</th>
-        <th>Workplace Name</th>
-        <th colspan="2">Edit</th>
+        <th>Name Workplace</th>
+        <th>Edit</th>
       </tr>
       </thead>
       <tbody>
-
-      <!--    <form @submit="save()">
-            <tr>
-              <input type="hidden" v-model="editUser.id" name="id"/>
-              <th v-text="(editUser.id != 0) ? editUser.id : ''"></th>
-              <th><input type="text" v-model="editUser.username"/></th>
-              <th><input type="password" v-model="editUser.password"/></th>
-              <th>
-                <div v-for="role in roles">
-                  <label>
-                    <input type="checkbox" v-text="role.role"/>
-                  </label>
-                </div>
-              </th>
-              <th><input class="btn btn-success" type="submit" value="Save"/></th>
-              <th><input class="btn btn-warning" type="reset" value="Cancel"/></th>
-            </tr>
-          </form>-->
-
-      <tr v-for="(item, index) in workplaces" v-if="workplaces.length">
+      <tr v-for="(item) in items" :key="item.id" v-if="items.length">
         <td v-text="item.id"></td>
         <td v-text="item.nameWorkplace"></td>
         <td>
-          <router-link class="btn btn-secondary" :to="{ name: 'edit-user', params: {id: item.id} }">edit</router-link>
-        </td>
-        <td>
-          <button class="btn btn-danger" @click="del(item.id, index)">delete</button>
+          <div class="btn-group">
+            <router-link class="btn btn-secondary" :to="{ name: 'workplace-edit', params: {id: item.id} }">edit</router-link>
+            <button class="btn btn-danger" @click="del(item.id)">delete</button>
+          </div>
         </td>
       </tr>
       <tr v-else>
@@ -55,23 +34,28 @@
 </template>
 
 <script>
-import { mapGetters, mapActions} from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "WorkplaceView",
   data() {
     return {
-      editWorkplace: '',
+
     }
   },
   computed: {
-    ...mapGetters('workplace', { workplaces: 'getAllItems', getWorkplace: 'getOneItem' }),
+    ...mapGetters('workplace', { items: 'getAllItems', getItem: 'getOneItem' }),
   },
   methods: {
-    ...mapActions('workplace', { save: 'add', del: 'remove' }),
+    ...mapActions('workplace', { save: 'add', remove: 'remove', getAll: 'findAll'}),
+    del(id) {
+      this.remove(id);
+    }
+  },
+  created() {
+    this.getAll();
   }
 }
-
 </script>
 
 <style scoped>

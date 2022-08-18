@@ -7,7 +7,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="isLoggedIn">
           <li class="nav-item" v-for="item in menu" :key="item.text">
             <router-link class="nav-link" :to="{ name: item.route }" exact-active-class="active">{{
                 item.text
@@ -15,6 +15,7 @@
             </router-link>
           </li>
         </ul>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-else></ul>
 
         <span v-if="isLoggedIn">
           <div class="input-group">
@@ -40,7 +41,7 @@
 import {mapGetters} from "vuex";
 
 export default {
-  name: "header",
+  name: "app-header",
   data() {
     return {
       username: '',

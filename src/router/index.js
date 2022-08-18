@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import store from "@/store";
+
 import HomeView from '../views/HomeView.vue'
 import OrderView from '../views/OrderView'
 import BaguetteView from '../views/BaguetteView'
@@ -9,9 +11,13 @@ import UserView from '../views/UserView'
 import RoleView from '../views/RoleView'
 import PageNotFoundView from '../views/PageNotFoundView'
 
-import EditView from "@/views/EditView";
-
-import store from "@/store";
+import EmployeeEditView from "@/components/EmployeeEditView";
+import UserEditView from "@/components/UserEditView";
+import WorkplaceEditView from "@/components/WorkplaceEditView";
+import BaguetteEditView from "@/components/BaguetteEditView";
+import CutterEditView from "@/components/CutterEditView";
+import RoleEditView from "@/components/RoleEditView";
+import OrderEditView from "@/components/OrderEditView";
 
 const routes = [
   {
@@ -23,6 +29,17 @@ const routes = [
     path: '/order',
     name: 'order',
     component: OrderView,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/order/:id',
+    name: 'order-edit',
+    component: OrderEditView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/baguette',
@@ -33,34 +50,92 @@ const routes = [
     }
   },
   {
+    path: '/baguette/:id',
+    name: 'baguette-edit',
+    component: BaguetteEditView,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/cutter',
     name: 'cutter',
-    component: CutterView
+    component: CutterView,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/cutter/:id',
+    name: 'cutter-edit',
+    component: CutterEditView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/workplace',
     name: 'workplace',
-    component: WorkplaceView
+    component: WorkplaceView,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/workplace/:id',
+    name: 'workplace-edit',
+    component: WorkplaceEditView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/employee',
     name: 'employee',
-    component: EmployeeView
+    component: EmployeeView,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/employee/:id',
+    name: 'employee-edit',
+    component: EmployeeEditView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/user',
     name: 'user',
-    component: UserView
+    component: UserView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/user/:id',
-    name: 'edit-user',
-    component: EditView
+    name: 'user-edit',
+    component: UserEditView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/role',
     name: 'role',
-    component: RoleView
+    component: RoleView,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/role/:id',
+    name: 'role-edit',
+    component: RoleEditView,
+    meta: {
+      requiresAuth: true
+    }
   },
   //  всегда в конце
   {
@@ -78,11 +153,11 @@ export default router
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (store.getters.isAuthenticated) {
+    if (store.getters["authorization/isAuthenticated"]) {
       next();
       return;
     }
-    next("/login");
+    next("/");
   } else {
     next();
   }

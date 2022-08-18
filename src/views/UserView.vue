@@ -1,11 +1,9 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-2">
-        <h3>Users list</h3>
-      </div>
-      <div class="col">
-        <a href="user/new" class="btn btn-primary">New user</a>
+      <div class="card-group">
+        <h3 class="text-black m-2">User</h3>
+        <router-link class="btn btn-primary m-2" :to="{ name: 'user-edit', params: {id: -1} }">new</router-link>
       </div>
     </div>
     <table class="table table-striped table-hover table-sm">
@@ -15,43 +13,20 @@
         <th>Username</th>
         <th>Password</th>
         <th>Role</th>
-        <th colspan="2">Edit</th>
+        <th>Edit</th>
       </tr>
       </thead>
       <tbody>
-
-      <!--    <form @submit="save()">
-            <tr>
-              <input type="hidden" v-model="editUser.id" name="id"/>
-              <th v-text="(editUser.id != 0) ? editUser.id : ''"></th>
-              <th><input type="text" v-model="editUser.username"/></th>
-              <th><input type="password" v-model="editUser.password"/></th>
-              <th>
-                <div v-for="role in roles">
-                  <label>
-                    <input type="checkbox" v-text="role.role"/>
-                  </label>
-                </div>
-              </th>
-              <th><input class="btn btn-success" type="submit" value="Save"/></th>
-              <th><input class="btn btn-warning" type="reset" value="Cancel"/></th>
-            </tr>
-          </form>-->
-
-      <tr v-for="(user, index) in users" v-if="users.length">
-        <td v-text="user.id"></td>
-        <td v-text="user.username"></td>
-        <td>********</td>
+      <tr v-for="(item) in items" :key="item.id" v-if="items.length">
+        <td v-text="item.id"></td>
+        <td v-text="item.username"></td>
+        <td v-text="item.password"></td>
+        <td v-text="item.roles"></td>
         <td>
-          <div v-for="role in user.roles">
-            <div v-text="role.role"></div>
+          <div class="btn-group">
+            <router-link class="btn btn-secondary" :to="{ name: 'user-edit', params: {id: item.id} }">edit</router-link>
+            <button class="btn btn-danger" @click="del(item.id)">delete</button>
           </div>
-        </td>
-        <td>
-          <router-link class="btn btn-secondary" :to="{ name: 'edit-user', params: {id: user.id} }">edit</router-link>
-        </td>
-        <td>
-          <button class="btn btn-danger" @click="del(user.id, index)">delete</button>
         </td>
       </tr>
       <tr v-else>
@@ -63,21 +38,26 @@
 </template>
 
 <script>
-import { mapGetters, mapActions} from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "UserView",
   data() {
     return {
-      editUser: '',
+
     }
   },
   computed: {
-    ...mapGetters('user', { users: 'getAllItems', getUser: 'getOneItem' }),
-    ...mapGetters('role', { roles: 'getAllItems' }),
+    ...mapGetters('user', { items: 'getAllItems', getItem: 'getOneItem' }),
   },
   methods: {
-    ...mapActions('user', { save: 'add', del: 'remove' }),
+    ...mapActions('user', { save: 'add', remove: 'remove', getAll: 'findAll'}),
+    del(id) {
+      this.remove(id);
+    }
+  },
+  created() {
+    this.getAll();
   }
 }
 </script>
