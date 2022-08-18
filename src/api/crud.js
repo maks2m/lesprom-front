@@ -16,15 +16,15 @@ export default function(instance) {
                 }
             });
         },
-        update(url, id, item) {
-            return instance.put(url + `/${id}`, {item}, {
+        update(url, item) {
+            return instance.put(url + `/${item.id}`, item, {
                 headers: {
                     Authorization: store.getters["authorization/getUser"].token,
                 }
             });
         },
-        save(url, item, user) {
-            return instance.post(url, {item}, {
+        save(url, item) {
+            return instance.post(url, item, {
                 headers: {
                     Authorization: store.getters["authorization/getUser"].token,
                 }

@@ -1,3 +1,6 @@
+import axios from "axios";
+import store from "@/store/index";
+import api from "@/api";
 
 const URL = '/employee';
 //let authUser = this.$store.getters['authorization/getUser'];
@@ -5,48 +8,72 @@ const URL = '/employee';
 export default {
     namespaced: true,
     state: {
-        employees: [],
+        employees: [
+            {
+                id: 1,
+                fullName: "test"
+            }
+        ],
     },
     getters: {
         getAllItems(state) {
             return state.employees;
         },
-/*
+        // параметризированный геттер
         getOneItem(state){
             return function(id){
-                return state.employees.some(item => item.id == id);
+                return state.employees.find(item => item.id === id);
             }
         },
-*/
-        getOneItem: state => id => state.employees.find(item => item.id === id),
     },
     mutations: {
         addAll(state, items) {
             state.employees = items;
         },
-        add(state, item) {
+        addNew(state, item) {
             state.employees.push(item);
         },
         remove(state, id){
             state.employees = state.employees.filter(item => item.id != id);
         },
+        replace(state, item) {
+            state.employees = state.employees.map(o => {
+                if (o.id === item.id) {
+                    return item;
+                }
+                return o;
+            });
+
+        }
     },
     actions: {
-        add({ commit }, item){
+        async add({ commit, getters }, item){
             if (item.id == '') {
-                // let item = api.save(URL, item, this.$store.getters['authorization/getUser']);
-
+                console.log('id=0 item.id: ' + item.id);
+                const newItem  = await api.crud.save('/employee', item);
+                commit('addNew', newItem)
             } else {
-                // api.update(URL, item.id, item, this.$store.getters['authorization/getUser']);
+                console.log('id!=0 item.id: ' + item.id);
+                const updateItem = await api.crud.update('/employee', item);
+                console.log(updateItem.data);
+                commit('replace', updateItem)
             }
-            commit('add', item);
         },
-        remove({ commit }, id){
-            // api.del(URL, id, this.$store.getters['authorization/getUser']);
-            commit('remove', id);
+        async remove({ commit }, id){
+            try {
+                const status = (await api.crud.del('/employee', id)).status;
+                commit('remove', id);
+            } catch (e) {
+                console.log('error (store/employee/remove): ' + e);
+            }
         },
-        findAll({ commit }, data) {
-            commit('addAll', data);
+        async findAll({ commit }) {
+            try {
+                const data = (await api.crud.getAll('/employee')).data;
+                commit('addAll', data);
+            } catch (e) {
+                console.log('error (store/employee/findAll): ' + e);
+            }
 
         },
     },

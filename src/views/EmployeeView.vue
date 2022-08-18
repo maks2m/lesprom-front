@@ -1,11 +1,9 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-2">
-        <h3>Employees list</h3>
-      </div>
-      <div class="col">
-        <a href="employee/new" class="btn btn-primary">New user</a>
+      <div class="card-group">
+        <h3 class="text-black m-2">Employees list</h3>
+        <router-link class="btn btn-primary m-2" :to="{ name: 'edit-user', params: {id: 1} }">New user</router-link>
       </div>
     </div>
     <table class="table table-striped table-hover table-sm">
@@ -17,25 +15,6 @@
       </tr>
       </thead>
       <tbody>
-
-      <!--    <form @submit="save()">
-            <tr>
-              <input type="hidden" v-model="editUser.id" name="id"/>
-              <th v-text="(editUser.id != 0) ? editUser.id : ''"></th>
-              <th><input type="text" v-model="editUser.username"/></th>
-              <th><input type="password" v-model="editUser.password"/></th>
-              <th>
-                <div v-for="role in roles">
-                  <label>
-                    <input type="checkbox" v-text="role.role"/>
-                  </label>
-                </div>
-              </th>
-              <th><input class="btn btn-success" type="submit" value="Save"/></th>
-              <th><input class="btn btn-warning" type="reset" value="Cancel"/></th>
-            </tr>
-          </form>-->
-
       <tr v-for="(item, index) in employees" v-if="employees.length">
         <td v-text="item.id"></td>
         <td v-text="item.fullName"></td>
@@ -43,7 +22,7 @@
           <router-link class="btn btn-secondary" :to="{ name: 'edit-user', params: {id: item.id} }">edit</router-link>
         </td>
         <td>
-          <button class="btn btn-danger" @click="del(item.id, index)">delete</button>
+          <button class="btn btn-danger" @click="del(item.id)">delete</button>
         </td>
       </tr>
       <tr v-else>
@@ -55,13 +34,13 @@
 </template>
 
 <script>
-import {mapActions, mapGetters} from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "EmployeeView",
   data() {
     return {
-      editUser: '',
+
     }
   },
   computed: {
@@ -69,18 +48,12 @@ export default {
   },
   methods: {
     ...mapActions('employee', { save: 'add', remove: 'remove', getAll: 'findAll'}),
-    del(id, index) {
-      this.$load(async() => {
-        await this.$api.crud.del('/employee', id).data;
-        this.remove(id);
-      })
-
+    del(id) {
+      this.remove(id);
     }
   },
   created() {
-    this.$load(async() => {
-      this.$store.dispatch('employee/findAll', (await this.$api.crud.getAll('/employee')).data);
-    })
+    this.getAll();
   }
 }
 </script>
