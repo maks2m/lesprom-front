@@ -9,9 +9,8 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="isLoggedIn">
           <li class="nav-item" v-for="item in menu" :key="item.text">
-            <router-link class="nav-link" :to="{ name: item.route }" exact-active-class="active">{{
-                item.text
-              }}
+            <router-link class="nav-link" :to="{ name: item.route }" exact-active-class="active" >
+              {{ item.text }}
             </router-link>
           </li>
         </ul>
@@ -19,7 +18,7 @@
 
         <span v-if="isLoggedIn">
           <div class="input-group">
-            <div class="navbar-text me-2">{{ user.username }}</div>
+            <label class="navbar-text me-2">{{ user.username }}</label>
             <button class="btn btn-sm btn-outline-secondary" @click="logout">Sign Out</button>
           </div>
         </span>
@@ -30,6 +29,7 @@
               <input v-model="password" type="password" class="form-control" placeholder="Password" aria-label="Password"
                      aria-describedby="addon-wrapping">
               <button class="btn btn-sm btn-outline-secondary" @click.prevent="login">Sing In</button>
+
             </div>
         </span>
       </div>
@@ -47,23 +47,25 @@ export default {
       username: '',
       password: '',
       menu: [
-        {route: 'order', text: 'Order'},
-        {route: 'baguette', text: 'Baguette'},
-        {route: 'cutter', text: 'Cutter'},
-        {route: 'workplace', text: 'Workplace'},
-        {route: 'employee', text: 'Employee'},
-        {route: 'user', text: 'User'},
-        {route: 'role', text: 'Role'},
+        { route: 'order', text: 'Order', access: ['ADMIN', 'USER'] },
+        { route: 'baguette', text: 'Baguette', access: ['ADMIN', 'USER'] },
+        { route: 'cutter', text: 'Cutter', access: ['ADMIN', 'USER'] },
+        { route: 'workplace', text: 'Workplace', access: ['ADMIN', 'USER'] },
+        { route: 'employee', text: 'Employee', access: ['ADMIN', 'USER'] },
+        { route: 'user', text: 'User', access: ['ADMIN'] },
+        { route: 'role', text: 'Role', access: ['ADMIN'] },
       ]
     }
   },
   computed: {
     ...mapGetters('authorization', { isLoggedIn: 'isAuthenticated', user: 'getUser' }),
+
   },
   methods: {
     login() {
       this.$load(async() => {
-        let response = await this.$api.auth.signIn({ username: this.username, password: this.password });
+        const response = await this.$api.auth.signIn({ username: this.username, password: this.password });
+        console.log(response);
         this.$store.dispatch('authorization/setUser', response.data);
       });
     },

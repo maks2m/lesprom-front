@@ -6,13 +6,16 @@ export default {
         user: {
             username: '',
             token: '',
-            userRole: '',
+            roles: '',
         },
         isAuthenticated: false,
     },
     getters: {
         getUser: state => state.user,
         isAuthenticated: state => state.isAuthenticated,
+        isUserRole: state => state.user.roles.includes('USER'),
+        isAdminRole: state => state.user.roles.includes('ADMIN'),
+
     },
     mutations: {
         setUser(state, user) {

@@ -30,7 +30,7 @@ const routes = [
     name: 'order',
     component: OrderView,
     meta: {
-      requiresAuth: true
+      requiresUser: true
     }
   },
   {
@@ -38,7 +38,7 @@ const routes = [
     name: 'order-edit',
     component: OrderEditView,
     meta: {
-      requiresAuth: true
+      requiresUser: true
     }
   },
   {
@@ -46,7 +46,7 @@ const routes = [
     name: 'baguette',
     component: BaguetteView,
     meta: {
-      requiresAuth: true
+      requiresUser: true
     }
   },
   {
@@ -54,7 +54,7 @@ const routes = [
     name: 'baguette-edit',
     component: BaguetteEditView,
     meta: {
-      requiresAuth: true
+      requiresUser: true
     }
   },
   {
@@ -62,7 +62,7 @@ const routes = [
     name: 'cutter',
     component: CutterView,
     meta: {
-      requiresAuth: true
+      requiresUser: true
     }
   },
   {
@@ -70,7 +70,7 @@ const routes = [
     name: 'cutter-edit',
     component: CutterEditView,
     meta: {
-      requiresAuth: true
+      requiresUser: true
     }
   },
   {
@@ -78,7 +78,7 @@ const routes = [
     name: 'workplace',
     component: WorkplaceView,
     meta: {
-      requiresAuth: true
+      requiresUser: true
     }
   },
   {
@@ -86,7 +86,7 @@ const routes = [
     name: 'workplace-edit',
     component: WorkplaceEditView,
     meta: {
-      requiresAuth: true
+      requiresUser: true
     }
   },
   {
@@ -94,7 +94,7 @@ const routes = [
     name: 'employee',
     component: EmployeeView,
     meta: {
-      requiresAuth: true
+      requiresUser: true
     }
   },
   {
@@ -102,7 +102,7 @@ const routes = [
     name: 'employee-edit',
     component: EmployeeEditView,
     meta: {
-      requiresAuth: true
+      requiresUser: true
     }
   },
   {
@@ -110,7 +110,7 @@ const routes = [
     name: 'user',
     component: UserView,
     meta: {
-      requiresAuth: true
+      requiresAdmin: true,
     }
   },
   {
@@ -118,7 +118,7 @@ const routes = [
     name: 'user-edit',
     component: UserEditView,
     meta: {
-      requiresAuth: true
+      requiresAdmin: true,
     }
   },
   {
@@ -126,15 +126,15 @@ const routes = [
     name: 'role',
     component: RoleView,
     meta: {
-      requiresAuth: true
-    }
+      requiresAdmin: true,
+    },
   },
   {
     path: '/role/:id',
     name: 'role-edit',
     component: RoleEditView,
     meta: {
-      requiresAuth: true
+      requiresAdmin: true,
     }
   },
   //  всегда в конце
@@ -151,13 +151,21 @@ const router = createRouter({
 
 export default router
 
+
 router.beforeEach((to, from, next) => {
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (store.getters["authorization/isAuthenticated"]) {
+  // to - откуда переходишь
+  // from - куда переходишь
+  // next - функция перехода
+  if (to.matched.some(record => record.meta.requiresAdmin)) {
+    if (store.getters["authorization/isAuthenticated"] && store.getters["authorization/isAdminRole"]) {
       next();
-      return;
     }
-    next("/");
+    //next("/");
+  } else if (to.matched.some(record => record.meta.requiresUser)) {
+    if (store.getters["authorization/isAuthenticated"] && store.getters["authorization/isUserRole"]) {
+      next();
+    }
+    //next("/");
   } else {
     next();
   }
