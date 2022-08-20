@@ -20,8 +20,10 @@
       <tr v-for="(item) in items" :key="item.id" v-if="items.length">
         <td v-text="item.id"></td>
         <td v-text="item.username"></td>
-        <td v-text="item.password"></td>
-        <td v-text="item.roles"></td>
+        <td>******</td>
+        <td>
+          <div v-for="role in item.roles">{{ role.role }}</div>
+        </td>
         <td>
           <div class="btn-group">
             <router-link class="btn btn-secondary" :to="{ name: 'user-edit', params: {id: item.id} }">edit</router-link>

@@ -24,9 +24,9 @@
         </span>
         <span v-else>
             <div class="input-group input-group-sm">
-              <input v-model="username" type="text" class="form-control" placeholder="Username" aria-label="Username"
+              <input v-model="userForm.username" type="text" class="form-control" placeholder="Username" aria-label="Username"
                      aria-describedby="addon-wrapping">
-              <input v-model="password" type="password" class="form-control" placeholder="Password" aria-label="Password"
+              <input v-model="userForm.password" type="password" class="form-control" placeholder="Password" aria-label="Password"
                      aria-describedby="addon-wrapping">
               <button class="btn btn-sm btn-outline-secondary" @click.prevent="login">Sing In</button>
 
@@ -44,8 +44,10 @@ export default {
   name: "app-header",
   data() {
     return {
-      username: '',
-      password: '',
+      userForm: {
+        username: '',
+        password: '',
+      },
       menu: [
         { route: 'order', text: 'Order', access: ['ADMIN', 'USER'] },
         { route: 'baguette', text: 'Baguette', access: ['ADMIN', 'USER'] },
@@ -63,16 +65,13 @@ export default {
   },
   methods: {
     login() {
-      this.$load(async() => {
-        const response = await this.$api.auth.signIn({ username: this.username, password: this.password });
-        console.log(response);
-        this.$store.dispatch('authorization/setUser', response.data);
+      this.$load(() => {
+        this.$store.dispatch('authorization/login', this.userForm);
       });
     },
     logout() {
-      this.$load(async() => {
-        await this.$api.auth.logout();
-        this.$store.dispatch('authorization/deleteUser');
+      this.$load(() => {
+        this.$store.dispatch('authorization/logout');
         this.$router.push('/');
       });
     }
