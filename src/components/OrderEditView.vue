@@ -248,9 +248,8 @@ export default {
   methods: {
     ...mapActions('order', {addItem: 'add'}),
     sendForm() {
-      console.log(this.$event);
-      //this.addItem(this.item);
-      //this.$router.push('/order');
+      this.addItem(this.item);
+      this.$router.push('/order');
     },
   }
 }
