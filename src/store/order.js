@@ -12,6 +12,7 @@ export default {
     namespaced: true,
     state: {
         items: [],
+        downloadFlag: false,
     },
     getters: {
         getAllItems(state) {
@@ -22,6 +23,9 @@ export default {
             return function(id){
                 return state.items.find(item => item.id === id);
             }
+        },
+        getDownloadFlag(state) {
+            return state.downloadFlag;
         },
     },
     mutations: {
@@ -41,22 +45,30 @@ export default {
                 }
                 return o;
             });
-
-        }
+        },
+        changeDownloadFlag(state) {
+            state.downloadFlag = true;
+        },
     },
     actions: {
+        addNew({commit}, item) {
+            commit('addNew', item);
+        },
+        replace({commit}, item) {
+            commit('replace', item);
+        },
         async add({ commit, getters }, item){
             if (item.id === '') {
                 try {
                     const response  = await api.crud.save(URL, item);
-                    commit('addNew', response.data);
+                    this.dispatch('addNew', response.data);
                 } catch (e) {
                     console.log(ERROR_ADD_NEW + e);
                 }
             } else {
                 try {
                     const response = await api.crud.update(URL, item);
-                    commit('replace', response.data);
+                    this.dispatch('replace', response.data);
                 } catch (e) {
                     console.log(ERROR_REPLACE + e);
                 }
@@ -74,6 +86,7 @@ export default {
             try {
                 const response = (await api.crud.getAll(URL));
                 commit('addAll', response.data);
+                commit('changeDownloadFlag');
             } catch (e) {
                 console.log(ERROR_FIND_ALL + e);
             }

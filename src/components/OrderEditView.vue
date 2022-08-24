@@ -9,7 +9,7 @@
 
     <hr>
 
-    <form class="g-3" @submit.prevent="sendForm">
+    <form class="g-3" @submit.prevent="sendForm($event)">
       <div class="row">
         <div class="col-md-12"><h4>General</h4></div>
         <div class="col-md-12 mt-2" v-show="!isNewItem">
@@ -17,59 +17,33 @@
           <input type="text" class="form-control" disabled readonly id="inputId" :value="item.id">
         </div>
 
-        <div class="col-md-4 mt-2">
-          <label for="inputFullName" class="form-label">Order number</label>
+        <div class="col-md-3 mt-2">
+          <label for="inputNumberOrder" class="form-label">Order number</label>
           <input type="text"
                  class="form-control"
-                 id="inputFullName"
-                 :value="item.numberOrder"
-                 @change="inputOnForm($event.target.value, 'numberOrder')">
+                 id="inputNumberOrder"
+                 v-model="item.numberOrder">
         </div>
-<!--
-      <div class="col-md-4 mt-2">
-        <label for="inputNumberOrderOther" class="form-label">Order number (other)</label>
-        <input type="text" class="form-control" id="inputNumberOrderOther" :value="item.numberOrderOther" @change="inputOnForm">
-      </div>
-      <div class="col-md-4 mt-2">
-        <label for="inputDuty" class="form-label">Duty</label>
-        <input type="text" class="form-control" id="inputDuty" :value="item.duty" @change="inputOnForm">
-      </div>
--->
-        <div class="col-md-4 mt-2">
+        <div class="col-md-3 mt-2">
+          <label for="inputNumberOrderOther" class="form-label">Order number (other)</label>
+          <input type="text"
+                 class="form-control"
+                 id="inputNumberOrderOther"
+                 v-model="item.numberOrderOther">
+        </div>
+        <div class="col-md-3 mt-2">
           <label for="inputStartDate" class="form-label">Start Date</label>
           <input type="date"
                  class="form-control"
                  id="inputStartDate"
-                 :value="item.startDate"
-                 @change="inputOnForm($event.target.value, 'startDate')">
+                 v-model="_startDate">
         </div>
-        <div class="col-md-4 mt-2">
+        <div class="col-md-3 mt-2">
           <label for="inputFinishDate" class="form-label">Finish Date</label>
           <input type="date"
                  class="form-control"
                  id="inputFinishDate"
-                 :value="item.finishDate"
-                 @change="inputOnForm($event.target.value, 'finishDate')">
-        </div>
-      </div>
-
-      <hr>
-
-      <div class="row">
-        <div class="col-md-12"><h4>Workplace</h4></div>
-
-        <div class="col-md-3 mt-2" v-for="workplace in workplaces" :key="workplace.id">
-          <label for="selectWorkplace" class="form-label">{{ workplace.nameWorkplace }}</label>
-          <select id="selectWorkplace"
-                  class="form-select"
-                  multiple
-                  @change="inputOnForm($event.target.options, 'timeOfEmployeeOnOrders.employee', workplace.id)">
-            <option v-for="employee in workplace.employees"
-                    :key="employee.id"
-                    :value="employee.id"
-                    :selected="this.item.timeOfEmployeeOnOrders.some((timeOfEmployeeOnOrder) => timeOfEmployeeOnOrder.employee.id === employee.id)"
-            >{{ employee.fullName }}</option>
-          </select>
+                 v-model="_finishDate">
         </div>
       </div>
 
@@ -82,76 +56,81 @@
           <label for="selectBaguette" class="form-label">Baguette</label>
           <select id="selectBaguette"
                   class="form-select"
-                  @change="inputOnForm($event.target.value, 'baguette')">
-            <option v-if="isNewItem" selected></option>
+                  multiple
+                  v-model="item.baguettes">
+            <option disabled value="">Выберите вариант</option>
             <option v-for="baguette in baguettes"
                     :key="baguette.id"
-                    :value="baguette.id"
-                    :selected="item.baguette.id === baguette.id"
-            >{{ baguette.baguetteName }}</option>
+                    :value="baguette"
+                    :selected="this.item.baguettes.some((baguetteItem) => baguetteItem.id === baguette.id)"
+            >{{ baguette.baguetteName }}
+            </option>
           </select>
         </div>
         <div class="col-md-6 mt-2">
           <label for="selectCutter" class="form-label">Cutter</label>
           <select id="selectCutter"
                   class="form-select"
-                  @change="inputOnForm($event.target.value, 'cutter')">
-            <option v-if="isNewItem" selected></option>
+                  multiple
+                  v-model="item.cutters">
+            <option disabled value="">Выберите вариант</option>
             <option v-for="cutter in cutters"
                     :key="cutter.id"
-                    :value="cutter.id"
-                    :selected="item.cutter.id === cutter.id"
-            >{{ cutter.cutterName }}</option>
+                    :value="cutter"
+                    :selected="this.item.cutters.some((cutterItem) => cutterItem.id === cutter.id)"
+            >{{ cutter.cutterName }}
+            </option>
           </select>
         </div>
 
+        <div class="col-md-4 mt-2">
+          <label for="inputDuty" class="form-label">Duty</label>
+          <input type="text"
+                 class="form-control"
+                 id="inputDuty"
+                 v-model="item.duty">
+        </div>
+        <div class="col-md-4 mt-2">
+          <label for="inputColor" class="form-label">Color</label>
+          <input type="text"
+                 class="form-control"
+                 id="inputColor"
+                 v-model="item.color">
+        </div>
+        <div class="col-md-4 mt-2">
+          <label for="inputGlass" class="form-label">Glass</label>
+          <input type="text"
+                 class="form-control"
+                 id="inputGlass"
+                 v-model="item.glass">
+        </div>
+        <div class="col-md-4 mt-2">
+          <label for="inputBinding" class="form-label">Binding</label>
+          <input type="text"
+                 class="form-control"
+                 id="inputBinding"
+                 v-model="item.binding">
+        </div>
         <div class="col-md-2 mt-2">
           <label for="inputRadius" class="form-label">Radius</label>
           <input type="text"
                  class="form-control"
                  id="inputRadius"
-                 :value="item.orderDescription.radius"
-                 @change="inputOnForm($event.target.value, 'orderDescription.radius')">
-        </div>
-        <div class="col-md-2 mt-2">
-          <label for="inputGlass" class="form-label">Glass</label>
-          <input type="text"
-                 class="form-control"
-                 id="inputGlass"
-                 :value="item.orderDescription.glass"
-                 @change="inputOnForm($event.target.value, 'orderDescription.glass')">
-        </div>
-        <div class="col-md-2 mt-2">
-          <label for="inputColor" class="form-label">Color</label>
-          <input type="text"
-                 class="form-control"
-                 id="inputColor"
-                 :value="item.orderDescription.color"
-                 @change="inputOnForm($event.target.value, 'orderDescription.color')">
-        </div>
-        <div class="col-md-2 mt-2">
-          <label for="inputBinding" class="form-label">Binding</label>
-          <input type="text"
-                 class="form-control"
-                 id="inputBinding"
-                 :value="item.orderDescription.binding"
-                 @change="inputOnForm($event.target.value, 'orderDescription.binding')">
+                 v-model="item.radius">
         </div>
         <div class="col-md-2 mt-2">
           <label for="inputWoodMass" class="form-label">Wood Mass</label>
           <input type="text"
                  class="form-control"
                  id="inputWoodMass"
-                 :value="item.orderDescription.woodMass"
-                 @change="inputOnForm($event.target.value, 'orderDescription.woodMass')">
+                 v-model="item.woodMass">
         </div>
         <div class="col-md-2 mt-2">
           <label for="inputWoodVeneer" class="form-label">Wood Veneer</label>
           <input type="text"
                  class="form-control"
                  id="inputWoodVeneer"
-                 :value="item.orderDescription.woodVeneer"
-                 @change="inputOnForm($event.target.value, 'orderDescription.woodVeneer')">
+                 v-model="item.woodVeneer">
         </div>
 
         <div class="mb-3 mt-2">
@@ -159,118 +138,120 @@
           <textarea class="form-control"
                     id="textareaOther"
                     rows="5"
-                    :value="item.other"
-                    @change="inputOnForm($event.target.value, 'other')"></textarea>
+                    v-model="item.notes"></textarea>
         </div>
+
       </div>
 
+      <hr>
+
       <div class="row">
-        <div class="col-12">
+        <div class="col-1">
           <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+        <div class="col-1">
+          <button type="reset" class="btn btn-danger">Cancel</button>
         </div>
       </div>
     </form>
   </div>
+
+  <br>
+  <br>
+  <time-of-employee-on-orders-edit-view :edit-order-id="this.$route.params.id"></time-of-employee-on-orders-edit-view>
+
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import {mapGetters, mapActions} from "vuex";
+import moment from "moment";
+import TimeOfEmployeeOnOrdersEditView from "@/components/TimeOfEmployeeOnOrdersEditView";
 
 export default {
   name: "OrderEditView",
+  components: {
+    TimeOfEmployeeOnOrdersEditView
+  },
   data() {
     return {
-      baguettes: [],
-      cutters: [],
-      workplaces: [],
-      employees: [],
-
       item: {
         id: '',
         numberOrder: '',
         numberOrderOther: '',
-        duty: '',
         startDate: '',
         finishDate: '',
+        duty: '',
+        radius: '',
+        glass: '',
+        binding: '',
+        woodVeneer: '',
+        woodMass: '',
+        color: '',
         workplaces: [],
-        cutter: '',
-        baguette: '',
+        cutters: [],
+        baguettes: [],
         timeOfEmployeeOnOrders: [],
-        orderDescription: {
-          radius: '',
-          glass: '',
-          binding: '',
-          woodVeneer: '',
-          woodMass: '',
-          color: '',
-        },
-        other: ''
+        notes: ''
       }
     }
   },
   computed: {
+    ...mapGetters('baguette', {baguettes: 'getAllItems'}),
+    ...mapGetters('cutter', {cutters: 'getAllItems'}),
+    ...mapGetters('workplace', {workplaces: 'getAllItems'}),
+    ...mapGetters('employee', {employees: 'getAllItems'}),
     isNewItem() {
-      return this.$route.params.id === '-1'
+      return this.$route.params.id === 'new'
+    },
+    _startDate: {
+      get() {
+        if (this.item.startDate !== '')
+          return moment(this.item.startDate).format('YYYY-MM-DD');
+      },
+      set(value) {
+        let arrDate = [];
+        let date = new Date(Date.parse(value));
+        arrDate.push(date.getFullYear());
+        arrDate.push(date.getMonth() + 1);
+        arrDate.push(date.getDate());
+        this.item.startDate = arrDate;
+      },
+    },
+
+    _finishDate: {
+      get() {
+        if (this.item.finishDate !== '')
+          return moment(this.item.finishDate).format('YYYY-MM-DD');
+      },
+      set(value) {
+        let arrDate = [];
+        let date = new Date(Date.parse(value));
+        arrDate.push(date.getFullYear());
+        arrDate.push(date.getMonth() + 1);
+        arrDate.push(date.getDate());
+        this.item.finishDate = arrDate;
+      },
     }
   },
   created() {
-    this.$store.dispatch('baguette/findAll');
-    this.$store.dispatch('cutter/findAll');
-    this.$store.dispatch('workplace/findAll');
-    this.$store.dispatch('employee/findAll');
+    if (!this.$store.getters['baguette/getDownloadFlag']) this.$store.dispatch('baguette/findAll');
+    if (!this.$store.getters['cutter/getDownloadFlag']) this.$store.dispatch('cutter/findAll');
+    if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
+    if (!this.$store.getters['employee/getDownloadFlag']) this.$store.dispatch('employee/findAll');
+    if (!this.$store.getters['timeOfEmployeeOnOrder/getDownloadFlag']) this.$store.dispatch('timeOfEmployeeOnOrder/findAll');
   },
   mounted() {
-    if(!this.isNewItem) {
+    if (!this.isNewItem) {
       this.item = Object.assign({}, this.$store.getters['order/getOneItem'](Number(this.$route.params.id)));
     }
-    this.baguettes = this.$store.getters['baguette/getAllItems'];
-    this.cutters = this.$store.getters['cutter/getAllItems'];
-    this.workplaces = this.$store.getters['workplace/getAllItems'];
-    this.employees = this.$store.getters['employee/getAllItems'];
   },
   methods: {
-    ...mapActions('order', { addItem: 'add' }),
+    ...mapActions('order', {addItem: 'add'}),
     sendForm() {
-      this.addItem(this.item);
-      this.$router.push('/order');
+      console.log(this.$event);
+      //this.addItem(this.item);
+      //this.$router.push('/order');
     },
-    inputOnForm(value, key1, key2) {
-      switch (key1) {
-        case 'numberOrder': this.item.numberOrder = value; break;
-        case 'numberOrderOther': this.item.numberOrderOther = value; break;
-        case 'duty': this.item.duty = value; break;
-        case 'startDate': this.item.startDate = value; break;
-        case 'finishDate': this.item.finishDate = value; break;
-        case 'cutter': this.item.cutter = this.cutters.find(c => c.id.toString() === value); break;
-        case 'baguette': this.item.baguette = this.baguettes.find(b => b.id.toString() === value); break;
-
-        case 'timeOfEmployeeOnOrders.employee': {
-          //console.log(value);
-          let arr = [];
-          Object.values(value).find(s => {
-            if (s.selected) {
-              arr.push(this.employees.find(e => e.id.toString() === s.value));
-            }
-          })
-          //this.item.timeOfEmployeeOnOrders
-          //const employee = this.employees.find(e => e.id.toString() === value);
-          //console.log(employee);
-          //this.item.baguette = value;
-          break;
-        }
-
-        case 'orderDescription.radius': this.item.orderDescription.radius = value; break;
-        case 'orderDescription.glass': this.item.orderDescription.glass = value; break;
-        case 'orderDescription.binding': this.item.orderDescription.binding = value; break;
-        case 'orderDescription.woodVeneer': this.item.orderDescription.woodVeneer = value; break;
-        case 'orderDescription.woodMass': this.item.orderDescription.woodMass = value; break;
-        case 'orderDescription.color': this.item.orderDescription.color = value; break;
-        case 'other': this.item.other = value; break;
-      }
-    },
-    isSelected(employee) {
-      return  this.item.timeOfEmployeeOnOrders.some((item) => item.employee.id === employee.id);
-    }
   }
 }
 </script>

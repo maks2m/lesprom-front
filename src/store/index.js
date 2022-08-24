@@ -7,11 +7,12 @@ import role from "@/store/role";
 import user from "@/store/user";
 import workplace from "@/store/workplace";
 import authorization from "@/store/authorization";
+import timeOfEmployeeOnOrder from "@/store/timeOfEmployeeOnOrder";
 
 
 export default createStore({
   modules: {
-    baguette, cutter, employee, order, role, user, workplace, authorization,
+    baguette, cutter, employee, order, role, user, workplace, authorization, timeOfEmployeeOnOrder,
   },
 
   strict: process.env.NODE_ENV !== 'production'

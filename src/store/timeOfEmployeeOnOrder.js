@@ -1,8 +1,9 @@
 import api from "@/api";
 
-const ENTITY_NAME = 'employee'
+const ENTITY_NAME = 'timeOfEmployeeOnOrder'
+const ENTITY_URL_NAME = 'time-of-employee-on-order'
 
-const URL = '/' + ENTITY_NAME;
+const URL = '/' + ENTITY_URL_NAME;
 const ERROR_REMOVE = 'error (store/' + ENTITY_NAME + '/remove): ';
 const ERROR_REPLACE = 'error (store/' + ENTITY_NAME + '/replace): ';
 const ERROR_FIND_ALL = 'error (store/' + ENTITY_NAME + '/findAll): ';
@@ -51,18 +52,24 @@ export default {
         },
     },
     actions: {
+        addNew({commit}, item) {
+            commit('addNew', item);
+        },
+        replace({commit}, item) {
+            commit('replace', item);
+        },
         async add({ commit, getters }, item){
             if (item.id === '') {
                 try {
                     const response  = await api.crud.save(URL, item);
-                    commit('addNew', response.data);
+                    this.dispatch('addNew', response.data);
                 } catch (e) {
                     console.log(ERROR_ADD_NEW + e);
                 }
             } else {
                 try {
                     const response = await api.crud.update(URL, item);
-                    commit('replace', response.data);
+                    this.dispatch('replace', response.data);
                 } catch (e) {
                     console.log(ERROR_REPLACE + e);
                 }

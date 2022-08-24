@@ -3,7 +3,7 @@
     <div class="row">
       <div class="card-group">
         <h3 class="text-black m-2">Role</h3>
-        <router-link class="btn btn-primary m-2" :to="{ name: 'role-edit', params: {id: -1} }">new</router-link>
+        <router-link class="btn btn-primary m-2" :to="{ name: 'role-edit', params: {id: 'new'} }">new</router-link>
       </div>
     </div>
     <table class="table table-striped table-hover table-sm">
@@ -15,7 +15,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(item) in items" :key="item.id" v-if="items.length">
+      <tr v-for="(item) in items" :key="item.id" v-if="items.length" @dblclick="this.$router.push({ name: 'role-edit', params: {id: item.id} })">
         <td v-text="item.id"></td>
         <td v-text="item.role"></td>
         <td>

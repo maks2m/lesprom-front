@@ -3,7 +3,7 @@
     <div class="row">
       <div class="card-group">
         <h3 class="text-black m-2">Order</h3>
-        <router-link class="btn btn-primary m-2" :to="{ name: 'order-edit', params: {id: -1} }">new</router-link>
+        <router-link class="btn btn-primary m-2" :to="{ name: 'order-edit', params: {id: 'new'} }">new</router-link>
       </div>
     </div>
     <table class="table table-striped table-hover table-sm">
@@ -11,24 +11,49 @@
       <tr>
         <th>id</th>
         <th>Number order</th>
+        <th>Number order (Other)</th>
         <th>Start Date</th>
-        <th>Finish Date;</th>
+        <th>Finish Date</th>
+        <th>Duty</th>
+        <th>Color</th>
+        <th>Wood Mass</th>
+        <th>Wood Veneer</th>
+        <th>Radius</th>
+        <th>Glass</th>
+        <th>Binding</th>
         <th>Baguette</th>
         <th>Cutter</th>
         <th>Workplaces</th>
         <th>Time Of Employee On Orders</th>
-        <th>Order Description</th>
+        <th>Notes</th>
         <th>Edit</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(item) in items" :key="item.id" v-if="items.length">
+      <tr v-for="(item) in items" :key="item.id" v-if="items.length" @dblclick="this.$router.push({ name: 'order-edit', params: {id: item.id} })">
         <td v-text="item.id"></td>
         <td v-text="item.numberOrder"></td>
+        <td v-text="item.numberOrderOther"></td>
         <td v-text="new Date(item.startDate).toLocaleString('ru', { year: 'numeric', month: 'numeric', day: 'numeric'})"></td>
         <td v-text="new Date(item.finishDate).toLocaleString('ru', { year: 'numeric', month: 'numeric', day: 'numeric'})"></td>
-        <td v-text="item.baguette.baguetteName"></td>
-        <td v-text="item.cutter.cutterName"></td>
+        <td v-text="item.duty"></td>
+        <td v-text="item.color"></td>
+        <td v-text="item.woodMass"></td>
+        <td v-text="item.woodVeneer"></td>
+        <td v-text="item.radius"></td>
+        <td v-text="item.glass"></td>
+        <td v-text="item.binding"></td>
+
+        <td>
+          <div v-for="baguette in item.baguettes" :key="baguette.id">
+            {{ baguette.baguetteName }}
+          </div>
+        </td>
+        <td>
+          <div v-for="cutter in item.cutters" :key="cutter.id">
+            {{ cutter.cutterName }}
+          </div>
+        </td>
         <td>
           <div v-for="workplace in item.workplaces" :key="workplace.id">
             {{ workplace.nameWorkplace }}
@@ -45,7 +70,7 @@
 <!--            <div v-text="new Date(timeOfEmployeeOnOrder.timeFinishWork.toString()).toLocaleString('ru', { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })"></div>-->
           </div>
         </td>
-        <td v-text="item.orderDescription"></td>
+        <td v-text="item.notes"></td>
         <td>
           <div class="btn-group">
             <router-link class="btn btn-secondary" :to="{ name: 'order-edit', params: {id: item.id} }">edit</router-link>
