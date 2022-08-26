@@ -10,6 +10,7 @@ import EmployeeView from '../views/EmployeeView'
 import UserView from '../views/UserView'
 import RoleView from '../views/RoleView'
 import PageNotFoundView from '../views/PageNotFoundView'
+import TestView from "@/views/TestView";
 
 import EmployeeEditView from "@/components/EmployeeEditView";
 import UserEditView from "@/components/UserEditView";
@@ -142,6 +143,14 @@ const routes = [
     path: '/role/:id',
     name: 'role-edit',
     component: RoleEditView,
+    meta: {
+      requiresAdmin: true,
+    }
+  },
+  {
+    path: '/test',
+    name: 'test',
+    component: TestView,
     meta: {
       requiresAdmin: true,
     }

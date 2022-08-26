@@ -10,7 +10,11 @@
       <thead class="table-info">
       <tr>
 <!--        <th>id</th>-->
-        <th>Номер заказа</th>
+        <th @click="sortedOnTable">
+          Номер заказа
+          <span v-if="isSeparateAbc">\/</span>
+          <span v-else>/\</span>
+        </th>
         <th>Номер заказа (другое)</th>
         <th>Дата начала</th>
         <th>Дата окончания</th>
@@ -81,11 +85,16 @@ export default {
   name: "OrderView",
   data() {
     return {
-
+      isSeparateAbc: true,
+      itemsSorted: [],
     }
   },
   computed: {
-    ...mapGetters('order', { items: 'getAllItems', getItem: 'getOneItem' }),
+    ...mapGetters('order', {getAllItems: 'getAllItems', getItem: 'getOneItem' }),
+    items() {
+      // return this.getAllSorted(this.isSeparateAbc, 'color');
+      return this.getAllItems;
+    },
   },
   methods: {
     ...mapActions('order', { save: 'add', remove: 'remove', getAll: 'findAll'}),
@@ -94,7 +103,15 @@ export default {
     },
     getLocalDate(arr) {
       return moment(arr).format('DD.MM.YYYY');
-    }
+    },
+    sortedOnTable() {
+      this.isSeparateAbc = !this.isSeparateAbc;
+      if (this.isSeparateAbc) {
+        this.itemsSorted = this.items.sort((a, b) => a.color.localeCompare(b.color));
+      } else {
+        //this.itemsSorted = this.items.sort((a, b) => b.color.localeCompare(a.color));
+      }
+    },
   },
   created() {
     this.getAll();

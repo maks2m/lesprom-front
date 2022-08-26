@@ -26,6 +26,7 @@ export default {
       this.$store.dispatch('authorization/setUser', JSON.parse(localStorage.getItem('user')));
     }
     if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['order/getDownloadFlag']) this.$store.dispatch('order/findAll');
       if (!this.$store.getters['baguette/getDownloadFlag']) this.$store.dispatch('baguette/findAll');
       if (!this.$store.getters['cutter/getDownloadFlag']) this.$store.dispatch('cutter/findAll');
       if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');

@@ -19,6 +19,15 @@ export default {
             return state.items;
         },
         // параметризированный геттер
+        getAllItemsSorted(state){
+            return function(isAsc, column){
+                if (isAsc) {
+                    return state.items.sort((a, b) => a[column] > b[column] ? 1 : -1);
+                } else {
+                    return state.items.sort((a, b) => a[column] < b[column] ? 1 : -1);
+                }
+            }
+        },
         getOneItem(state){
             return function(id){
                 return state.items.find(item => item.id === id);
