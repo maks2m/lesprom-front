@@ -1,6 +1,6 @@
 <template>
-  <h1>Error 404</h1>
-  <p>Page not found</p>
+  <h1>Ошибка 404</h1>
+  <p>Страница не найдена!</p>
 </template>
 
 <script>

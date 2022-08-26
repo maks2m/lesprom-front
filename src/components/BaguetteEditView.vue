@@ -1,22 +1,24 @@
 <template>
   <div class="container">
     <div v-if="isNewItem">
-      <h1>New</h1>
+      <h1>Новый элемент</h1>
     </div>
     <div v-else>
-      <h1>Edit</h1>
+      <h1>Редактирование</h1>
     </div>
     <form class="row g-3" @submit.prevent="sendForm">
+<!--
       <div class="col-md-6" v-show="!isNewItem">
         <label for="inputId" class="form-label">ID</label>
         <input type="text" class="form-control" disabled readonly id="inputId" :value="item.id">
       </div>
+-->
       <div class="col-md-6">
-        <label for="inputFullName" class="form-label">Baguette name</label>
+        <label for="inputFullName" class="form-label">Наименование багета</label>
         <input type="text" class="form-control" id="inputFullName" :value="item.baguetteName" @change="inputOnForm">
       </div>
       <div class="col-12">
-        <button type="submit" class="btn btn-primary">Sign in</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
       </div>
     </form>
   </div>

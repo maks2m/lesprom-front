@@ -19,16 +19,16 @@
         <span v-if="isLoggedIn">
           <div class="input-group">
             <label class="navbar-text me-2">{{ user.username }}</label>
-            <button class="btn btn-sm btn-outline-secondary" @click="logout">Sign Out</button>
+            <button class="btn btn-sm btn-outline-secondary" @click="logout">Выйти</button>
           </div>
         </span>
         <span v-else>
             <div class="input-group input-group-sm">
-              <input v-model="userForm.username" type="text" class="form-control" placeholder="Username" aria-label="Username"
+              <input v-model="userForm.username" type="text" class="form-control" placeholder="Имя пользователя" aria-label="Username"
                      aria-describedby="addon-wrapping">
-              <input v-model="userForm.password" type="password" class="form-control" placeholder="Password" aria-label="Password"
+              <input v-model="userForm.password" type="password" class="form-control" placeholder="Пароль" aria-label="Password"
                      aria-describedby="addon-wrapping">
-              <button class="btn btn-sm btn-outline-secondary" @click.prevent="login">Sing In</button>
+              <button class="btn btn-sm btn-outline-secondary" @click.prevent="login">Войти</button>
 
             </div>
         </span>
@@ -49,11 +49,11 @@ export default {
         password: '',
       },
       menu: [
-        { route: 'order', text: 'Order', access: ['ADMIN', 'USER'] },
-        { route: 'baguette', text: 'Baguette', access: ['ADMIN', 'USER'] },
-        { route: 'cutter', text: 'Cutter', access: ['ADMIN', 'USER'] },
-        { route: 'workplace', text: 'Workplace', access: ['ADMIN', 'USER'] },
-        { route: 'employee', text: 'Employee', access: ['ADMIN', 'USER'] },
+        { route: 'order', text: 'Заказы', access: ['ADMIN', 'USER'] },
+        { route: 'baguette', text: 'Багеты', access: ['ADMIN', 'USER'] },
+        { route: 'cutter', text: 'Фрезы', access: ['ADMIN', 'USER'] },
+        { route: 'workplace', text: 'Участки', access: ['ADMIN', 'USER'] },
+        { route: 'employee', text: 'Сотрудники', access: ['ADMIN', 'USER'] },
         { route: 'user', text: 'User', access: ['ADMIN'] },
         { route: 'role', text: 'Role', access: ['ADMIN'] },
       ]

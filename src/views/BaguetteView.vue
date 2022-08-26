@@ -2,31 +2,31 @@
   <div class="container-fluid">
     <div class="row">
       <div class="card-group">
-        <h3 class="text-black m-2">Baguette</h3>
-        <router-link class="btn btn-primary m-2" :to="{ name: 'baguette-edit', params: {id: 'new'} }">new</router-link>
+        <h3 class="text-black m-2">Багеты</h3>
+        <router-link class="btn btn-primary m-2" :to="{ name: 'baguette-edit', params: {id: 'new'} }">Добавить</router-link>
       </div>
     </div>
     <table class="table table-striped table-hover table-sm">
       <thead class="table-info">
       <tr>
-        <th>id</th>
-        <th>Baguette Name</th>
-        <th>Edit</th>
+<!--        <th>id</th>-->
+        <th>Наименование багета</th>
+        <th>Редактирование</th>
       </tr>
       </thead>
       <tbody>
       <tr v-for="(item) in items" :key="item.id" v-if="items.length" @dblclick="this.$router.push({ name: 'baguette-edit', params: {id: item.id} })">
-        <td v-text="item.id"></td>
+<!--        <td v-text="item.id"></td>-->
         <td v-text="item.baguetteName"></td>
         <td>
           <div class="btn-group">
-            <router-link class="btn btn-secondary" :to="{ name: 'baguette-edit', params: {id: item.id} }">edit</router-link>
-            <button class="btn btn-danger" @click="del(item.id)">delete</button>
+            <router-link class="btn btn-secondary" :to="{ name: 'baguette-edit', params: {id: item.id} }">Редактировать</router-link>
+            <button class="btn btn-danger" @click="del(item.id)">Удалить</button>
           </div>
         </td>
       </tr>
       <tr v-else>
-        <td>List is empty!</td>
+        <td>Список пуст!</td>
       </tr>
       </tbody>
     </table>

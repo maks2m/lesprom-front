@@ -18,6 +18,7 @@ import BaguetteEditView from "@/components/BaguetteEditView";
 import CutterEditView from "@/components/CutterEditView";
 import RoleEditView from "@/components/RoleEditView";
 import OrderEditView from "@/components/OrderEditView";
+import TimeOfEmployeeOnOrdersEditView from "@/components/TimeOfEmployeeOnOrdersEditView";
 
 const routes = [
   {
@@ -37,6 +38,14 @@ const routes = [
     path: '/order/:id',
     name: 'order-edit',
     component: OrderEditView,
+    meta: {
+      requiresUser: true
+    }
+  },
+  {
+    path: '/order/:id/add-employees',
+    name: 'order-edit-add-employees',
+    component: TimeOfEmployeeOnOrdersEditView,
     meta: {
       requiresUser: true
     }

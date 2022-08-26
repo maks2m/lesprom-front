@@ -1,98 +1,124 @@
 <template>
   <div class="container">
+    <div>
+      <h1>Добавление участков и сотрудников</h1>
+    </div>
+
+    <hr>
+
     <form @submit.prevent="sendForm">
-      <div>
-        <h1>Add Workplaces and Employees</h1>
-      </div>
-
-      <hr>
-
       <div class="row">
-        <div class="col-md-3 mt-2"
-             v-for="workplace in workplaces"
-             :key="workplace.id">
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" id="inlineCheckbox" :value="workplace"
-                   v-model="useWorkplaces">
-            <label class="form-check-label" for="inlineCheckbox">{{ workplace.nameWorkplace }}</label>
-          </div>
+        <div class="input-group">
+          <span class="input-group-text" id="selectWorkplace">Участок</span>
           <select id="selectWorkplace"
                   class="form-select"
-                  multiple
-                  v-show="useWorkplaces.some(u => u.id === workplace.id)">
-            <option disabled value="">Выберите вариант</option>
-            <option v-for="employee in workplace.employees"
+                  v-model="selectedWorkplace">
+            <option disabled selected value="">Выберите участок</option>
+            <option v-for="workplace in workplaces"
+                    :key="workplace.id"
+                    :value="workplace">
+              {{ workplace.nameWorkplace }}
+            </option>
+          </select>
+          <span class="input-group-text" id="selectEmployee">Сотрудник</span>
+          <select id="selectEmployee"
+                  class="form-select"
+                  v-model="selectedEmployee">
+            <option disabled selected value="">Выберите сотрудника</option>
+            <option v-for="employee in selectedWorkplace.employees"
                     :key="employee.id"
-                    :value="employee.id"
-                    :selected="_timeOfEmployeeOnOrders.some((t) => t.employee.id === employee.id)">
+                    :value="employee">
               {{ employee.fullName }}
             </option>
           </select>
-        </div>
-      </div>
-
-      <hr>
-
-      <div class="row mb-2">
-        <div class="col-1">
-          <button type="submit" class="btn btn-primary">Save</button>
-        </div>
-        <div class="col-1">
-          <button type="reset" class="btn btn-danger">Cancel</button>
+          <button class="btn btn-primary">добавить</button>
+          <button class="btn btn-danger" type="reset">Отмена</button>
         </div>
       </div>
     </form>
+
+    <hr>
+
+    <table class="table table-striped table-hover table-sm">
+      <thead class="table-info">
+      <tr>
+        <th>Участок</th>
+        <th>Сотрудник</th>
+        <th>Редактирование</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="item in _timeOfEmployeeOnOrders"
+          :key="item.id"
+          v-if="_timeOfEmployeeOnOrders.length">
+        <td v-text="item.employee.workplaces.find(w => order.workplaces.some(_w => _w.id === w.id)).nameWorkplace"></td>
+        <td v-text="item.employee.fullName"></td>
+        <td>
+          <div class="btn-group">
+            <button class="btn btn-danger" @click="del(item.id)">Удалить</button>
+          </div>
+        </td>
+      </tr>
+      <tr v-else>
+        <td>Список пуст!</td>
+      </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script>
-import {mapGetters, mapActions} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
   name: "TimeOfEmployeeOnOrdersEditView",
-  props: {
-    editOrderId: '',
-  },
   data() {
     return {
-      useWorkplaces: [],
-      newTimeOfEmployeeOnOrders: [
-        {
-
-        }
-      ],
+      newOrder: {},
+      selectedWorkplace: {},
+      selectedEmployee: {},
+      newTimeOfEmployeeOnOrder: {
+        id: '',
+        timeStartWork: '',
+        timeFinishWork: '',
+        employee: {
+          id: '',
+        },
+        order: {
+          id: '',
+        },
+      },
     }
   },
   computed: {
-    ...mapGetters('workplace', {workplaces: 'getAllItems', downloadFlag: 'getDownloadFlag'}),
-    ...mapGetters('timeOfEmployeeOnOrder', {timeOfEmployeeOnOrders: 'getAllItems'}),
-    _timeOfEmployeeOnOrders() {
-      if (this.editOrderId !== 'new') {
-        return this.timeOfEmployeeOnOrders.filter(t => t.order.id === Number(this.editOrderId));
-      } else {
-        return [];
-      }
+    editOrderId() {
+      return Number(this.$route.params.id);
     },
-  },
-
-  mounted() {
-    /**
-     * загрузка данных о предыдущих выбранных участках (Workplaces)
-     */
-    this.useWorkplaces = this.workplaces.filter(w => this._timeOfEmployeeOnOrders.some(_t => _t.employee.workplaces.some(_w => _w.id === w.id)));
-  },
-  created() {
-    if (!this.$store.getters['timeOfEmployeeOnOrder/getDownloadFlag']) this.$store.dispatch('timeOfEmployeeOnOrder/findAll');
-    if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
+    ...mapGetters('workplace', { workplaces: 'getAllItems', downloadFlag: 'getDownloadFlag' }),
+    ...mapGetters('timeOfEmployeeOnOrder', { timeOfEmployeeOnOrders: 'getAllItems' }),
+    _timeOfEmployeeOnOrders() {
+      return this.timeOfEmployeeOnOrders.filter(t => t.order.id === this.editOrderId);
+    },
+    order() {
+      return this.$store.getters['order/getOneItem'](Number(this.editOrderId));
+    },
   },
   methods: {
-    ...mapActions('timeOfEmployeeOnOrder', {addTimeOfEmployeeOnOrder: 'add'}),
+    ...mapActions('timeOfEmployeeOnOrder', { saveTimeOfEmployeeOnOrder: 'add', removeTimeOfEmployeeOnOrder: 'remove' }),
+    ...mapActions('order', { replaceOrder: 'replace' }),
     sendForm() {
-      this._timeOfEmployeeOnOrders.forEach(_t => this.addTimeOfEmployeeOnOrder(_t));
-      //this.$router.push('/order');
-    },
-  }
+      this.newOrder = JSON.parse(JSON.stringify(this.order));
+      this.newOrder.workplaces.push(this.selectedWorkplace);
+      this.replaceOrder(this.newOrder);
 
+      this.newTimeOfEmployeeOnOrder.order = this.order;
+      this.newTimeOfEmployeeOnOrder.employee = this.selectedEmployee;
+      this.saveTimeOfEmployeeOnOrder(this.newTimeOfEmployeeOnOrder);
+    },
+    del(id) {
+      this.removeTimeOfEmployeeOnOrder(id);
+    }
+  }
 }
 </script>
 

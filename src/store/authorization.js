@@ -8,6 +8,7 @@ const ERROR_ADD = 'error (store/' + ENTITY_NAME + '/setUser): ';
 export default {
     namespaced: true,
     state: {
+        isAppPlay: false,
         user: {
             username: '',
             token: '',
@@ -20,6 +21,7 @@ export default {
         isAuthenticated: state => state.isAuthenticated,
         isUserRole: state => state.user.roles.includes('USER'),
         isAdminRole: state => state.user.roles.includes('ADMIN'),
+        getAppPlay: state => state.isAppPlay,
 
     },
     mutations: {
@@ -29,8 +31,14 @@ export default {
         setAuthenticated(state, status) {
             state.isAuthenticated = status;
         },
+        setTrueAppPlay(state) {
+            state.isAppPlay = true;
+        }
     },
     actions: {
+        setTrueAppPlay({ commit }) {
+            commit('setTrueAppPlay', true);
+        },
         setUser({ commit }, user) {
             commit('setUser', user);
             commit('setAuthenticated', true);

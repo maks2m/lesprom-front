@@ -1,45 +1,47 @@
 <template>
   <div class="container">
     <div v-if="isNewItem">
-      <h1>New</h1>
+      <h1>Новый заказ</h1>
     </div>
     <div v-else>
-      <h1>Edit</h1>
+      <h1>Редактирование заказа</h1>
     </div>
 
     <hr>
 
     <form class="g-3" @submit.prevent="sendForm($event)">
       <div class="row">
-        <div class="col-md-12"><h4>General</h4></div>
+        <div class="col-md-12"><h4>Основное</h4></div>
+<!--
         <div class="col-md-12 mt-2" v-show="!isNewItem">
           <label for="inputId" class="form-label">ID</label>
           <input type="text" class="form-control" disabled readonly id="inputId" :value="item.id">
         </div>
+-->
 
         <div class="col-md-3 mt-2">
-          <label for="inputNumberOrder" class="form-label">Order number</label>
+          <label for="inputNumberOrder" class="form-label">Номер заказа</label>
           <input type="text"
                  class="form-control"
                  id="inputNumberOrder"
                  v-model="item.numberOrder">
         </div>
         <div class="col-md-3 mt-2">
-          <label for="inputNumberOrderOther" class="form-label">Order number (other)</label>
+          <label for="inputNumberOrderOther" class="form-label">Номер заказа (другое)</label>
           <input type="text"
                  class="form-control"
                  id="inputNumberOrderOther"
                  v-model="item.numberOrderOther">
         </div>
         <div class="col-md-3 mt-2">
-          <label for="inputStartDate" class="form-label">Start Date</label>
+          <label for="inputStartDate" class="form-label">Дата начала</label>
           <input type="date"
                  class="form-control"
                  id="inputStartDate"
                  v-model="_startDate">
         </div>
         <div class="col-md-3 mt-2">
-          <label for="inputFinishDate" class="form-label">Finish Date</label>
+          <label for="inputFinishDate" class="form-label">Дата окончания</label>
           <input type="date"
                  class="form-control"
                  id="inputFinishDate"
@@ -50,10 +52,10 @@
       <hr>
 
       <div class="row">
-        <div class="col-md-12"><h4>Others</h4></div>
+        <div class="col-md-12"><h4>Другое</h4></div>
 
         <div class="col-md-6 mt-2">
-          <label for="selectBaguette" class="form-label">Baguette</label>
+          <label for="selectBaguette" class="form-label">Багет</label>
           <select id="selectBaguette"
                   class="form-select"
                   multiple
@@ -68,7 +70,7 @@
           </select>
         </div>
         <div class="col-md-6 mt-2">
-          <label for="selectCutter" class="form-label">Cutter</label>
+          <label for="selectCutter" class="form-label">Фреза</label>
           <select id="selectCutter"
                   class="form-select"
                   multiple
@@ -84,49 +86,49 @@
         </div>
 
         <div class="col-md-4 mt-2">
-          <label for="inputDuty" class="form-label">Duty</label>
+          <label for="inputDuty" class="form-label">Задолжность</label>
           <input type="text"
                  class="form-control"
                  id="inputDuty"
                  v-model="item.duty">
         </div>
         <div class="col-md-4 mt-2">
-          <label for="inputColor" class="form-label">Color</label>
+          <label for="inputColor" class="form-label">Цвет</label>
           <input type="text"
                  class="form-control"
                  id="inputColor"
                  v-model="item.color">
         </div>
         <div class="col-md-4 mt-2">
-          <label for="inputGlass" class="form-label">Glass</label>
+          <label for="inputGlass" class="form-label">Стекло</label>
           <input type="text"
                  class="form-control"
                  id="inputGlass"
                  v-model="item.glass">
         </div>
         <div class="col-md-4 mt-2">
-          <label for="inputBinding" class="form-label">Binding</label>
+          <label for="inputBinding" class="form-label">Переплет</label>
           <input type="text"
                  class="form-control"
                  id="inputBinding"
                  v-model="item.binding">
         </div>
         <div class="col-md-2 mt-2">
-          <label for="inputRadius" class="form-label">Radius</label>
+          <label for="inputRadius" class="form-label">Радиус</label>
           <input type="text"
                  class="form-control"
                  id="inputRadius"
                  v-model="item.radius">
         </div>
         <div class="col-md-2 mt-2">
-          <label for="inputWoodMass" class="form-label">Wood Mass</label>
+          <label for="inputWoodMass" class="form-label">Массив</label>
           <input type="text"
                  class="form-control"
                  id="inputWoodMass"
                  v-model="item.woodMass">
         </div>
         <div class="col-md-2 mt-2">
-          <label for="inputWoodVeneer" class="form-label">Wood Veneer</label>
+          <label for="inputWoodVeneer" class="form-label">Шпон</label>
           <input type="text"
                  class="form-control"
                  id="inputWoodVeneer"
@@ -134,7 +136,7 @@
         </div>
 
         <div class="mb-3 mt-2">
-          <label for="textareaOther" class="form-label">Other</label>
+          <label for="textareaOther" class="form-label">Примечание</label>
           <textarea class="form-control"
                     id="textareaOther"
                     rows="5"
@@ -147,18 +149,16 @@
 
       <div class="row">
         <div class="col-1">
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" class="btn btn-primary">Сохранить</button>
         </div>
         <div class="col-1">
-          <button type="reset" class="btn btn-danger">Cancel</button>
+          <button type="reset" class="btn btn-danger">Отмена</button>
         </div>
       </div>
     </form>
   </div>
 
   <br>
-  <br>
-  <time-of-employee-on-orders-edit-view :edit-order-id="this.$route.params.id"></time-of-employee-on-orders-edit-view>
 
 </template>
 

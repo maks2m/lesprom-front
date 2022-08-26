@@ -62,14 +62,14 @@ export default {
             if (item.id === '') {
                 try {
                     const response  = await api.crud.save(URL, item);
-                    this.dispatch('addNew', response.data);
+                    this.dispatch('timeOfEmployeeOnOrder/addNew', response.data);
                 } catch (e) {
                     console.log(ERROR_ADD_NEW + e);
                 }
             } else {
                 try {
                     const response = await api.crud.update(URL, item);
-                    this.dispatch('replace', response.data);
+                    this.dispatch('timeOfEmployeeOnOrder/replace', response.data);
                 } catch (e) {
                     console.log(ERROR_REPLACE + e);
                 }
