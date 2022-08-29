@@ -1,6 +1,6 @@
 <template>
   <div class="btn btn-primary" @click="sorted">test</div>
-  {{this_items}}
+  {{items}}
 </template>
 
 <script>
@@ -17,10 +17,20 @@ export default {
       this_items: [],
     }
   },
+  computed: {
+    items: {
+      get() {
+        return this.$store.getters['cutter/getAllItems'];
+      },
+      set(value) {
+        this.$store.dispatch('cutter/add', value);
+      }
+    }
+  },
   methods: {
     sorted() {
       //return this.items.sort((a, b) => a.color > b.color ? 1 : -1 );
-      this.this_items = this.items.sort((a, b) => a.radius > b.radius ? 1 : -1 );
+      //this.this_items = this.items.sort((a, b) => a.radius > b.radius ? 1 : -1 );
     }
   }
 }

@@ -1,6 +1,6 @@
 import api from "@/api";
 
-const ENTITY_NAME = 'order'
+const ENTITY_NAME = 'cutter'
 
 const URL = '/' + ENTITY_NAME;
 const ERROR_REMOVE = 'error (store/' + ENTITY_NAME + '/remove): ';
@@ -29,13 +29,6 @@ export default {
         },
     },
     mutations: {
-        setItemsSorted(state, paramSort) {
-            if (paramSort.separated === 'asc') {
-                state.items.sort((a, b) => a[paramSort.column] > b[paramSort.column] ? 1 : -1);
-            } else if (paramSort.separated === 'desc') {
-                state.items.sort((a, b) => a[paramSort.column] < b[paramSort.column] ? 1 : -1);
-            }
-        },
         addAll(state, items) {
             state.items = items;
         },
@@ -58,29 +51,18 @@ export default {
         },
     },
     actions: {
-        setItemsSorted({commit}, paramSort) {
-            // console.log(paramSort.isSeparateAbc);
-            // console.log(paramSort.column);
-            commit('setItemsSorted', paramSort);
-        },
-        addNew({commit}, item) {
-            commit('addNew', item);
-        },
-        replace({commit}, item) {
-            commit('replace', item);
-        },
         async add({ commit, getters }, item){
             if (item.id === '') {
                 try {
                     const response  = await api.crud.save(URL, item);
-                    this.dispatch('order/addNew', response.data);
+                    commit('addNew', response.data);
                 } catch (e) {
                     console.log(ERROR_ADD_NEW + e);
                 }
             } else {
                 try {
                     const response = await api.crud.update(URL, item);
-                    this.dispatch('order/replace', response.data);
+                    commit('replace', response.data);
                 } catch (e) {
                     console.log(ERROR_REPLACE + e);
                 }
