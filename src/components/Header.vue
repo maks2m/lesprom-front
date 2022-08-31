@@ -8,8 +8,13 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="isLoggedIn">
-          <li class="nav-item" v-for="item in menu" :key="item.text">
-            <router-link class="nav-link" :to="{ name: item.route }" exact-active-class="active" >
+          <li class="nav-item"
+              v-for="item in menu"
+              :key="item.text">
+            <router-link class="nav-link"
+                         :to="{ name: item.route }"
+                         exact-active-class="active"
+                         v-if="checkAuthorization(item.access)">
               {{ item.text }}
             </router-link>
           </li>
@@ -57,12 +62,15 @@ export default {
         { route: 'employee', text: 'Сотрудники', access: ['ADMIN', 'USER'] },
         { route: 'user', text: 'User', access: ['ADMIN'] },
         { route: 'role', text: 'Role', access: ['ADMIN'] },
+        { route: 'test', text: 'test', access: ['ADMIN'] },
       ]
     }
   },
   computed: {
     ...mapGetters('authorization', { isLoggedIn: 'isAuthenticated', user: 'getUser' }),
+    test(){
 
+    },
   },
   methods: {
     login() {
@@ -75,7 +83,10 @@ export default {
         this.$store.dispatch('authorization/logout');
         this.$router.push('/');
       });
-    }
+    },
+    checkAuthorization(arrRoles) {
+      return arrRoles.some(r => this.$store.getters['authorization/getUser'].roles.some(_r => _r === r));
+    },
   },
 }
 </script>

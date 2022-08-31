@@ -148,11 +148,9 @@
       <hr>
 
       <div class="row">
-        <div class="col-1">
-          <button type="submit" class="btn btn-primary">Сохранить</button>
-        </div>
-        <div class="col-1">
-          <button type="reset" class="btn btn-danger">Отмена</button>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary m-1">Сохранить</button>
+          <button type="reset" class="btn btn-danger m-1">Отмена</button>
         </div>
       </div>
     </form>
