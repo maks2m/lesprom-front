@@ -105,15 +105,30 @@ export default {
   },
   methods: {
     ...mapActions('timeOfEmployeeOnOrder', { saveTimeOfEmployeeOnOrder: 'add', removeTimeOfEmployeeOnOrder: 'remove' }),
-    ...mapActions('order', { replaceOrder: 'replace' }),
+    ...mapActions('order', { replaceOrder: 'add' }),
     sendForm() {
-      this.newOrder = JSON.parse(JSON.stringify(this.order));
-      this.newOrder.workplaces.push(this.selectedWorkplace);
+      this.newOrder = simpleClone(this.order);
+      this.newOrder.workplaces.push({ id: this.selectedWorkplace.id });
       this.replaceOrder(this.newOrder);
 
-      this.newTimeOfEmployeeOnOrder.order = this.order;
-      this.newTimeOfEmployeeOnOrder.employee = this.selectedEmployee;
+      this.newTimeOfEmployeeOnOrder.order.id = this.order.id;
+      this.newTimeOfEmployeeOnOrder.employee.id = this.selectedEmployee.id;
       this.saveTimeOfEmployeeOnOrder(this.newTimeOfEmployeeOnOrder);
+
+      function simpleClone(parent) {
+        let clone = {};
+        for (let key1 in parent) {
+          if (!(parent[key1] instanceof Object) || (key1 !== 'workplaces' && key1 !== 'timeOfEmployeeOnOrders')) {
+            clone[key1] = parent[key1];
+          } else if (key1 === 'workplaces') {
+            clone[key1] = [];
+            parent[key1].forEach(i => {
+              clone[key1].push({ id: i.id })
+            });
+          }
+        }
+        return clone;
+      }
     },
     del(id) {
       this.removeTimeOfEmployeeOnOrder(id);

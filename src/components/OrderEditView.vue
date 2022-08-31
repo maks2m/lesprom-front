@@ -249,7 +249,7 @@ export default {
     ...mapActions('order', {addItem: 'add'}),
     sendForm() {
       this.addItem(this.item);
-      this.$router.push('/order');
+      this.$router.push('/order-manager');
     },
   }
 }

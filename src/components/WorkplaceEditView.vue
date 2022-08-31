@@ -34,6 +34,7 @@ export default {
       item: {
         id: '',
         fullName: '',
+        sequence: '',
       }
     }
   },

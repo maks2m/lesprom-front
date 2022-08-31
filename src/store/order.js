@@ -29,6 +29,13 @@ export default {
         },
     },
     mutations: {
+        setItemsSorted(state, paramSort) {
+            if (paramSort.separated === 'asc') {
+                state.items.sort((a, b) => a[paramSort.column] > b[paramSort.column] ? 1 : -1);
+            } else if (paramSort.separated === 'desc') {
+                state.items.sort((a, b) => a[paramSort.column] < b[paramSort.column] ? 1 : -1);
+            }
+        },
         addAll(state, items) {
             state.items = items;
         },
@@ -51,13 +58,16 @@ export default {
         },
     },
     actions: {
+        setItemsSorted({commit}, paramSort) {
+            commit('setItemsSorted', paramSort);
+        },
         addNew({commit}, item) {
             commit('addNew', item);
         },
         replace({commit}, item) {
             commit('replace', item);
         },
-        async add({ commit, getters }, item){
+        async add({ commit }, item){
             if (item.id === '') {
                 try {
                     const response  = await api.crud.save(URL, item);

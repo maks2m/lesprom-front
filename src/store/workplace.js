@@ -29,6 +29,13 @@ export default {
         },
     },
     mutations: {
+        setItemsSorted(state, paramSort) {
+            if (paramSort.separated === 'asc') {
+                state.items.sort((a, b) => a[paramSort.column] > b[paramSort.column] ? 1 : -1);
+            } else if (paramSort.separated === 'desc') {
+                state.items.sort((a, b) => a[paramSort.column] < b[paramSort.column] ? 1 : -1);
+            }
+        },
         addAll(state, items) {
             state.items = items;
         },
@@ -51,6 +58,9 @@ export default {
         },
     },
     actions: {
+        setItemsSorted({commit}, paramSort) {
+            commit('setItemsSorted', paramSort);
+        },
         async add({ commit, getters }, item){
             if (item.id === '') {
                 try {

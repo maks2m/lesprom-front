@@ -15,3 +15,6 @@ createApp(App)
     .mount('#app')
 
 import 'bootstrap/dist/css/bootstrap.min.css'
+//import 'bootstrap-icons/font/fonts/bootstrap-icons.scss'
+//import 'bootstrap-icons/font/bootstrap-icons';
+import 'bootstrap-icons/font/bootstrap-icons.css'

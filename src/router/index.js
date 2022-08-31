@@ -3,6 +3,7 @@ import store from "@/store";
 
 import HomeView from '../views/HomeView.vue'
 import OrderView from '../views/OrderView'
+import OrderTechnologistView from "@/views/OrderTechnologistView";
 import BaguetteView from '../views/BaguetteView'
 import CutterView from '../views/CutterView'
 import WorkplaceView from '../views/WorkplaceView'
@@ -27,8 +28,8 @@ const routes = [
     component: HomeView
   },
   {
-    path: '/order',
-    name: 'order',
+    path: '/order-manager',
+    name: 'order-manager',
     component: OrderView,
     meta: {
       requiresUser: true
@@ -43,9 +44,17 @@ const routes = [
     }
   },
   {
-    path: '/order/:id/add-employees',
-    name: 'order-edit-add-employees',
+    path: '/order-manager/:id/add-employees',
+    name: 'order-manager-edit-add-employees',
     component: TimeOfEmployeeOnOrdersEditView,
+    meta: {
+      requiresUser: true
+    }
+  },
+  {
+    path: '/order-technologist',
+    name: 'order-technologist',
+    component: OrderTechnologistView,
     meta: {
       requiresUser: true
     }
