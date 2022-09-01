@@ -47,13 +47,17 @@ export default {
     ...mapGetters('cutter', { items: 'getAllItems', getItem: 'getOneItem' }),
   },
   methods: {
-    ...mapActions('cutter', { save: 'add', remove: 'remove', getAll: 'findAll'}),
+    ...mapActions('cutter', { save: 'add', remove: 'remove' }),
     del(id) {
-      this.remove(id);
+      this.remove(id).then(() => {
+        this.$store.dispatch('order/changeDownloadFlag', false);
+      });
     }
   },
   created() {
-    this.getAll();
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['cutter/getDownloadFlag']) this.$store.dispatch('cutter/findAll');
+    }
   }
 }
 </script>

@@ -38,26 +38,36 @@ export default {
     }
   },
   computed: {
+    orderId() {
+      if (!this.isNewItem) return Number(this.$route.params.id);
+    },
     isNewItem() {
       return this.$route.params.id === 'new'
-    }
-  },
-  mounted() {
-    if(!this.isNewItem) {
-      this.item = Object.assign({}, this.$store.getters['employee/getOneItem'](Number(this.$route.params.id)));
     }
   },
   methods: {
     ...mapActions('employee', { addItem: 'add' }),
     sendForm() {
-      this.addItem(this.item);
+      this.addItem(this.item).then(() =>{
+        this.$store.dispatch('workplace/changeDownloadFlag', false);
+        this.$store.dispatch('technologicalProcess/changeDownloadFlag', false);
+      });
       this.$router.push('/employee');
     },
     inputOnForm(event) {
       this.item.fullName = event.target.value;
     }
-
-  }
+  },
+  async created() {
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['employee/getDownloadFlag']) {
+        await this.$store.dispatch('employee/findAll');
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['employee/getOneItem'](this.orderId));
+      } else {
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['employee/getOneItem'](this.orderId));
+      }
+    }
+  },
 }
 </script>
 

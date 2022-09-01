@@ -47,13 +47,17 @@ export default {
     ...mapGetters('role', { items: 'getAllItems', getItem: 'getOneItem' }),
   },
   methods: {
-    ...mapActions('role', { save: 'add', remove: 'remove', getAll: 'findAll'}),
+    ...mapActions('role', { save: 'add', remove: 'remove' }),
     del(id) {
-      this.remove(id);
+      this.remove(id).then(() => {
+        this.$store.dispatch('user/changeDownloadFlag', false);
+      });
     }
   },
   created() {
-    this.getAll();
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['role/getDownloadFlag']) this.$store.dispatch('role/findAll');
+    }
   }
 }
 </script>

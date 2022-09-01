@@ -47,13 +47,17 @@ export default {
     ...mapGetters('workplace', { items: 'getAllItems', getItem: 'getOneItem' }),
   },
   methods: {
-    ...mapActions('workplace', { save: 'add', remove: 'remove', getAll: 'findAll'}),
+    ...mapActions('workplace', { save: 'add', remove: 'remove' }),
     del(id) {
-      this.remove(id);
+      this.remove(id).then(() => {
+        this.$store.dispatch('technologicalProcess/changeDownloadFlag', false);
+      });
     }
   },
   created() {
-    this.getAll();
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
+    }
   }
 }
 </script>

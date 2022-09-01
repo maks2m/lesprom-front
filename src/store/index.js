@@ -1,18 +1,19 @@
-import { createStore } from 'vuex'
-import baguette from "@/store/baguette";
-import cutter from "@/store/cutter";
-import employee from "@/store/employee";
-import order from "@/store/order";
-import role from "@/store/role";
-import user from "@/store/user";
-import workplace from "@/store/workplace";
-import authorization from "@/store/authorization";
-import timeOfEmployeeOnOrder from "@/store/timeOfEmployeeOnOrder";
+import { createStore } from 'vuex';
+
+import baguette from "@/store/modules/baguette";
+import cutter from "@/store/modules/cutter";
+import employee from "@/store/modules/employee";
+import order from "@/store/modules/order";
+import role from "@/store/modules/role";
+import user from "@/store/modules/user";
+import workplace from "@/store/modules/workplace";
+import authorization from "@/store/modules/authorization";
+import technologicalProcess from "@/store/modules/technologicalProcess";
 
 
 export default createStore({
   modules: {
-    baguette, cutter, employee, order, role, user, workplace, authorization, timeOfEmployeeOnOrder,
+    baguette, cutter, employee, order, role, user, workplace, authorization, technologicalProcess,
   },
 
   strict: process.env.NODE_ENV !== 'production'

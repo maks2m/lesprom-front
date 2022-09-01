@@ -39,26 +39,35 @@ export default {
     }
   },
   computed: {
+    orderId() {
+      if (!this.isNewItem) return Number(this.$route.params.id);
+    },
     isNewItem() {
       return this.$route.params.id === 'new'
-    }
-  },
-  mounted() {
-    if(!this.isNewItem) {
-      this.item = Object.assign({}, this.$store.getters['workplace/getOneItem'](Number(this.$route.params.id)));
     }
   },
   methods: {
     ...mapActions('workplace', { addItem: 'add' }),
     sendForm() {
-      this.addItem(this.item);
+      this.addItem(this.item).then(() => {
+        this.$store.dispatch('technologicalProcess/changeDownloadFlag', false);
+      });
       this.$router.push('/workplace');
     },
     inputOnForm(event) {
       this.item.nameWorkplace = event.target.value;
     }
-
-  }
+  },
+  async created() {
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['workplace/getDownloadFlag']) {
+        await this.$store.dispatch('workplace/findAll');
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['workplace/getOneItem'](this.orderId));
+      } else {
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['workplace/getOneItem'](this.orderId));
+      }
+    }
+  },
 }
 </script>
 

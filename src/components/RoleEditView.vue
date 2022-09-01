@@ -36,26 +36,35 @@ export default {
     }
   },
   computed: {
+    orderId() {
+      if (!this.isNewItem) return Number(this.$route.params.id);
+    },
     isNewItem() {
       return this.$route.params.id === 'new'
-    }
-  },
-  mounted() {
-    if(!this.isNewItem) {
-      this.item = Object.assign({}, this.$store.getters['role/getOneItem'](Number(this.$route.params.id)));
     }
   },
   methods: {
     ...mapActions('role', { addItem: 'add' }),
     sendForm() {
-      this.addItem(this.item);
+      this.addItem(this.item).then(() => {
+        this.$store.dispatch('user/changeDownloadFlag', false);
+      });
       this.$router.push('/role');
     },
     inputOnForm(event) {
       this.item.role = event.target.value;
     }
-
-  }
+  },
+  async created() {
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['role/getDownloadFlag']) {
+        await this.$store.dispatch('role/findAll');
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['role/getOneItem'](this.orderId));
+      } else {
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['role/getOneItem'](this.orderId));
+      }
+    }
+  },
 }
 </script>
 

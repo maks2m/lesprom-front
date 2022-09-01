@@ -32,6 +32,11 @@ export default {
       //return this.items.sort((a, b) => a.color > b.color ? 1 : -1 );
       //this.this_items = this.items.sort((a, b) => a.radius > b.radius ? 1 : -1 );
     }
+  },
+  created() {
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['cutter/getDownloadFlag']) this.$store.dispatch('cutter/findAll');
+    }
   }
 }
 </script>

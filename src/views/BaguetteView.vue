@@ -47,13 +47,17 @@ export default {
     ...mapGetters('baguette', { items: 'getAllItems', getItem: 'getOneItem' }),
   },
   methods: {
-    ...mapActions('baguette', { save: 'add', remove: 'remove', getAll: 'findAll'}),
+    ...mapActions('baguette', { save: 'add', remove: 'remove' }),
     del(id) {
-      this.remove(id);
+      this.remove(id).then(() => {
+        this.$store.dispatch('order/changeDownloadFlag', false);
+      });
     }
   },
   created() {
-    this.getAll();
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['baguette/getDownloadFlag']) this.$store.dispatch('baguette/findAll');
+    }
   }
 }
 </script>

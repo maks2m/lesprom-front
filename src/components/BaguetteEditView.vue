@@ -7,15 +7,15 @@
       <h1>Редактирование</h1>
     </div>
     <form class="row g-3" @submit.prevent="sendForm">
-<!--
-      <div class="col-md-6" v-show="!isNewItem">
-        <label for="inputId" class="form-label">ID</label>
-        <input type="text" class="form-control" disabled readonly id="inputId" :value="item.id">
-      </div>
--->
+      <!--
+            <div class="col-md-6" v-show="!isNewItem">
+              <label for="inputId" class="form-label">ID</label>
+              <input type="text" class="form-control" disabled readonly id="inputId" :value="item.id">
+            </div>
+      -->
       <div class="col-md-6">
         <label for="inputFullName" class="form-label">Наименование багета</label>
-        <input type="text" class="form-control" id="inputFullName" :value="item.baguetteName" @change="inputOnForm">
+        <input type="text" class="form-control" id="inputFullName" v-model="_item.baguetteName">
       </div>
       <div class="col-12">
         <button type="submit" class="btn btn-primary">Сохранить</button>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
   name: "BaguetteEditView",
@@ -38,25 +38,39 @@ export default {
     }
   },
   computed: {
+    orderId() {
+      if (!this.isNewItem) return Number(this.$route.params.id);
+    },
     isNewItem() {
       return this.$route.params.id === 'new'
-    }
-  },
-  mounted() {
-    if(!this.isNewItem) {
-      this.item = Object.assign({}, this.$store.getters['baguette/getOneItem'](Number(this.$route.params.id)));
+    },
+    _item: {
+      get() {
+        return this.item;
+      },
+      set(value) {
+        this.item = value;
+      }
     }
   },
   methods: {
-    ...mapActions('baguette', { addItem: 'add' }),
+    ...mapActions('baguette', {addItem: 'add'}),
     sendForm() {
-      this.addItem(this.item);
+      this.addItem(this.item).then(() => {
+        this.$store.dispatch('order/changeDownloadFlag', false);
+      });
       this.$router.push('/baguette');
     },
-    inputOnForm(event) {
-      this.item.baguetteName = event.target.value;
+  },
+  async created() {
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['baguette/getDownloadFlag']) {
+        await this.$store.dispatch('baguette/findAll');
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['baguette/getOneItem'](this.orderId));
+      } else {
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['baguette/getOneItem'](this.orderId));
+      }
     }
-
   }
 }
 </script>

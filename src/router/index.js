@@ -20,7 +20,7 @@ import BaguetteEditView from "@/components/BaguetteEditView";
 import CutterEditView from "@/components/CutterEditView";
 import RoleEditView from "@/components/RoleEditView";
 import OrderEditView from "@/components/OrderEditView";
-import TimeOfEmployeeOnOrdersEditView from "@/components/TimeOfEmployeeOnOrdersEditView";
+import TechnologicalProcessEditView from "@/components/TechnologicalProcessEditView";
 
 const routes = [
   {
@@ -47,7 +47,7 @@ const routes = [
   {
     path: '/order-manager/:id/add-employees',
     name: 'order-manager-edit-add-employees',
-    component: TimeOfEmployeeOnOrdersEditView,
+    component: TechnologicalProcessEditView,
     meta: {
       requiresUser: true
     }

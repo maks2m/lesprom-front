@@ -47,13 +47,18 @@ export default {
     ...mapGetters('employee', { items: 'getAllItems', getItem: 'getOneItem' }),
   },
   methods: {
-    ...mapActions('employee', { save: 'add', remove: 'remove', getAll: 'findAll'}),
+    ...mapActions('employee', { save: 'add', remove: 'remove' }),
     del(id) {
-      this.remove(id);
+      this.remove(id).then(() => {
+        this.$store.dispatch('workplace/changeDownloadFlag', false);
+        this.$store.dispatch('technologicalProcess/changeDownloadFlag', false);
+      });
     }
   },
   created() {
-    this.getAll();
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['employee/getDownloadFlag']) this.$store.dispatch('employee/findAll');
+    }
   }
 }
 </script>

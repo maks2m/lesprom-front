@@ -163,13 +163,9 @@
 <script>
 import {mapGetters, mapActions} from "vuex";
 import moment from "moment";
-import TimeOfEmployeeOnOrdersEditView from "@/components/TimeOfEmployeeOnOrdersEditView";
 
 export default {
   name: "OrderEditView",
-  components: {
-    TimeOfEmployeeOnOrdersEditView
-  },
   data() {
     return {
       item: {
@@ -198,6 +194,9 @@ export default {
     ...mapGetters('cutter', {cutters: 'getAllItems'}),
     ...mapGetters('workplace', {workplaces: 'getAllItems'}),
     ...mapGetters('employee', {employees: 'getAllItems'}),
+    orderId() {
+      if (!this.isNewItem) return Number(this.$route.params.id);
+    },
     isNewItem() {
       return this.$route.params.id === 'new'
     },
@@ -207,12 +206,7 @@ export default {
           return moment(this.item.startDate).format('YYYY-MM-DD');
       },
       set(value) {
-        let arrDate = [];
-        let date = new Date(Date.parse(value));
-        arrDate.push(date.getFullYear());
-        arrDate.push(date.getMonth() + 1);
-        arrDate.push(date.getDate());
-        this.item.startDate = arrDate;
+        this.item.startDate = Date.parse(value);
       },
     },
 
@@ -231,25 +225,29 @@ export default {
       },
     }
   },
-  created() {
-    if (!this.$store.getters['baguette/getDownloadFlag']) this.$store.dispatch('baguette/findAll');
-    if (!this.$store.getters['cutter/getDownloadFlag']) this.$store.dispatch('cutter/findAll');
-    if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
-    if (!this.$store.getters['employee/getDownloadFlag']) this.$store.dispatch('employee/findAll');
-    if (!this.$store.getters['timeOfEmployeeOnOrder/getDownloadFlag']) this.$store.dispatch('timeOfEmployeeOnOrder/findAll');
-  },
-  mounted() {
-    if (!this.isNewItem) {
-      this.item = Object.assign({}, this.$store.getters['order/getOneItem'](Number(this.$route.params.id)));
-    }
-  },
   methods: {
     ...mapActions('order', {addItem: 'add'}),
     sendForm() {
-      this.addItem(this.item);
+      this.addItem(this.item).then(() => {
+        this.$store.dispatch('technologicalProcess/changeDownloadFlag', false);
+      });
       this.$router.push('/order-manager');
     },
-  }
+  },
+  async created() {
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['baguette/getDownloadFlag']) this.$store.dispatch('baguette/findAll');
+      if (!this.$store.getters['cutter/getDownloadFlag']) this.$store.dispatch('cutter/findAll');
+      if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
+      if (!this.$store.getters['employee/getDownloadFlag']) this.$store.dispatch('employee/findAll');
+      if (!this.$store.getters['order/getDownloadFlag']) {
+        await this.$store.dispatch('order/findAll');
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['order/getOneItem'](this.orderId));
+      } else {
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['order/getOneItem'](this.orderId));
+      }
+    }
+  },
 }
 </script>
 

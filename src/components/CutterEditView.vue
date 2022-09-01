@@ -38,26 +38,35 @@ export default {
     }
   },
   computed: {
+    orderId() {
+      if (!this.isNewItem) return Number(this.$route.params.id);
+    },
     isNewItem() {
       return this.$route.params.id === 'new'
-    }
-  },
-  mounted() {
-    if(!this.isNewItem) {
-      this.item = Object.assign({}, this.$store.getters['cutter/getOneItem'](Number(this.$route.params.id)));
     }
   },
   methods: {
     ...mapActions('cutter', { addItem: 'add' }),
     sendForm() {
-      this.addItem(this.item);
+      this.addItem(this.item).then(() => {
+        this.$store.dispatch('order/changeDownloadFlag', false);
+      });
       this.$router.push('/cutter');
     },
     inputOnForm(event) {
       this.item.cutterName = event.target.value;
     }
-
-  }
+  },
+  async created() {
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['cutter/getDownloadFlag']) {
+        await this.$store.dispatch('cutter/findAll');
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['cutter/getOneItem'](this.orderId));
+      } else {
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['cutter/getOneItem'](this.orderId));
+      }
+    }
+  },
 }
 </script>
 

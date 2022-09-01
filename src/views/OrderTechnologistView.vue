@@ -26,20 +26,20 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(item) in items" :key="item.id" v-if="items.length"
+      <tr v-for="(item) in orders" :key="item.id" v-if="orders.length"
           @dblclick="this.$router.push({ name: 'order-edit', params: {id: item.id} })">
         <td v-text="item.numberOrder"></td>
         <td v-text="item.numberOrderOther"></td>
         <td v-for="workplace in workplaces">
-          <div v-for="timeOfEmployeeOnOrder in item.timeOfEmployeeOnOrders">
-            <div  class="btn-group m-1" v-if="timeOfEmployeeOnOrder.employee.workplaces.some(w => w.id === workplace.id)">
+          <div v-for="technologicalProcess in _technologicalProcesses(item.id)">
+            <div  class="btn-group m-1" v-if="technologicalProcess.workplace.id === workplace.id">
               <div class="btn"
-                   :class="setClassBtnEmployee(timeOfEmployeeOnOrder)"
-                   @click="addDateEmployee(timeOfEmployeeOnOrder, item)">
-                {{ timeOfEmployeeOnOrder.employee.fullName }}
+                   :class="setClassBtnEmployee(technologicalProcess)"
+                   @click="addDateEmployee(technologicalProcess, item)">
+                {{ technologicalProcess.employee.fullName }}
               </div>
               <div class="btn-group">
-                <div class="btn btn-outline-danger" @click="delDateEmployee(timeOfEmployeeOnOrder, item)">-</div>
+                <div class="btn btn-outline-danger" @click="delDateEmployee(technologicalProcess, item)">-</div>
               </div>
             </div>
           </div>
@@ -79,49 +79,50 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('order', {items: 'getAllItems'}),
+    ...mapGetters('order', {orders: 'getAllItems'}),
+    ...mapGetters('technologicalProcess', {technologicalProcesses: 'getAllItems'}),
     ...mapGetters('workplace', {workplaces: 'getAllItems'}),
   },
   methods: {
-    ...mapActions('order', {save: 'add', getAll: 'findAll', setItemsSorted: 'setItemsSorted', replaceTimeInOrder: 'replaceTime'}),
-    ...mapActions('timeOfEmployeeOnOrder', { updateTime: 'add'}),
+    ...mapActions('order', {save: 'add', setItemsSorted: 'setItemsSorted'}),
+    ...mapActions('technologicalProcess', { updateTime: 'add'}),
 
-    setClassBtnEmployee(timeOfEmployeeOnOrder) {
-      if (timeOfEmployeeOnOrder.timeStartWork === null && timeOfEmployeeOnOrder.timeFinishWork === null) {
+    _technologicalProcesses(id) {
+      return this.technologicalProcesses.filter(t => t.order.id === id);
+    },
+    setClassBtnEmployee(technologicalProcess) {
+      if (technologicalProcess.timeStartWork === null && technologicalProcess.timeFinishWork === null) {
         return ['btn-danger'];
       }
-      if (timeOfEmployeeOnOrder.timeStartWork !== null && timeOfEmployeeOnOrder.timeFinishWork === null) {
+      if (technologicalProcess.timeStartWork !== null && technologicalProcess.timeFinishWork === null) {
         return ['btn-warning'];
       }
-      if (timeOfEmployeeOnOrder.timeStartWork !== null && timeOfEmployeeOnOrder.timeFinishWork !== null) {
+      if (technologicalProcess.timeStartWork !== null && technologicalProcess.timeFinishWork !== null) {
         return ['btn-success'];
       }
     },
-    addDateEmployee(timeOfEmployeeOnOrder, order) {
-      let updateTimeOfEmployeeOnOrder = simpleClone(timeOfEmployeeOnOrder, order.id);
+    addDateEmployee(technologicalProcess, order) {
+      let updateTechnologicalProcess = simpleClone(technologicalProcess, order.id);
       console.log(order);
-      if (updateTimeOfEmployeeOnOrder.timeStartWork === null && updateTimeOfEmployeeOnOrder.timeFinishWork === null) {
-        updateTimeOfEmployeeOnOrder.timeStartWork = arrDate(new Date());
-        this.updateTime(updateTimeOfEmployeeOnOrder);
-      } else if (updateTimeOfEmployeeOnOrder.timeStartWork !== null && updateTimeOfEmployeeOnOrder.timeFinishWork === null) {
-        updateTimeOfEmployeeOnOrder.timeFinishWork = arrDate(new Date());
-        this.updateTime(updateTimeOfEmployeeOnOrder);
-      }
-      function arrDate (date) {
-        return [date.getFullYear(), date.getMonth()+1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()]
+      if (updateTechnologicalProcess.timeStartWork === null && updateTechnologicalProcess.timeFinishWork === null) {
+        updateTechnologicalProcess.timeStartWork = Date.now();
+        this.updateTime(updateTechnologicalProcess);
+      } else if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork === null) {
+        updateTechnologicalProcess.timeFinishWork = Date.now();
+        this.updateTime(updateTechnologicalProcess);
       }
       console.log('+');
       this.getAll();
     },
-    delDateEmployee(timeOfEmployeeOnOrder, order) {
-      let updateTimeOfEmployeeOnOrder = simpleClone(timeOfEmployeeOnOrder, order.id);
-      console.log(updateTimeOfEmployeeOnOrder);
-      if (updateTimeOfEmployeeOnOrder.timeStartWork !== null && updateTimeOfEmployeeOnOrder.timeFinishWork !== null) {
-        updateTimeOfEmployeeOnOrder.timeFinishWork = null;
-        this.updateTime(updateTimeOfEmployeeOnOrder);
-      } else if (updateTimeOfEmployeeOnOrder.timeStartWork !== null && updateTimeOfEmployeeOnOrder.timeFinishWork === null) {
-        updateTimeOfEmployeeOnOrder.timeStartWork = null;
-        this.updateTime(updateTimeOfEmployeeOnOrder);
+    delDateEmployee(technologicalProcess, order) {
+      let updateTechnologicalProcess = simpleClone(technologicalProcess, order.id);
+      console.log(updateTechnologicalProcess);
+      if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork !== null) {
+        updateTechnologicalProcess.timeFinishWork = null;
+        this.updateTime(updateTechnologicalProcess);
+      } else if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork === null) {
+        updateTechnologicalProcess.timeStartWork = null;
+        this.updateTime(updateTechnologicalProcess);
       }
       console.log('-')
       this.getAll();
@@ -148,17 +149,22 @@ export default {
     },
   },
   mounted() {
-    this.$store.dispatch('workplace/setItemsSorted', {column: 'sequence', separated: 'asc', type: 'number'});
+    this.$store.dispatch('workplace/setItemsSorted', {column: 'id', separated: 'asc', type: 'text'});
   },
   created() {
-    this.getAll();
-  }
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['order/getDownloadFlag']) this.$store.dispatch('order/findAll');
+      if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
+      if (!this.$store.getters['technologicalProcess/getDownloadFlag']) this.$store.dispatch('technologicalProcess/findAll');
+    }
+  },
 }
 
 function simpleClone(parent, orderId) {
   let clone = {
     order: { id: '' },
     employee: { id: '' },
+    workplace: { id: '' },
     timeFinishWork: [],
     timeStartWork: [],
   };
@@ -171,6 +177,7 @@ function simpleClone(parent, orderId) {
   clone.timeFinishWork = parent.timeFinishWork;
   clone.order.id = orderId;
   clone.employee.id = parent.employee.id;
+  clone.workplace.id = parent.workplace.id;
   return clone;
 }
 </script>

@@ -53,13 +53,15 @@ export default {
     ...mapGetters('user', { items: 'getAllItems', getItem: 'getOneItem' }),
   },
   methods: {
-    ...mapActions('user', { save: 'add', remove: 'remove', getAll: 'findAll'}),
+    ...mapActions('user', { save: 'add', remove: 'remove' }),
     del(id) {
       this.remove(id);
     }
   },
   created() {
-    this.getAll();
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['user/getDownloadFlag']) this.$store.dispatch('user/findAll');
+    }
   }
 }
 </script>

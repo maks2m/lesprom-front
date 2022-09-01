@@ -1,5 +1,6 @@
 <template>
- <test :items="getAllItems" />
+<!-- <test :items="'getAllItems'" />-->
+  <div class="btn" @click="testMethod">test</div>
 </template>
 
 <script>
@@ -12,8 +13,18 @@ export default {
     test
   },
   computed: {
-    ...mapGetters('order', { getAllItems: 'getAllItems' }),
+
   },
+  methods: {
+    testMethod() {
+      console.log(this.$store.getters['technologicalProcess/getDownloadFlag']);
+    }
+  },
+  created() {
+    if (this.$store.getters['authorization/isAuthenticated']) {
+
+    }
+  }
 }
 </script>
 

@@ -47,13 +47,11 @@ export default {
     }
   },
   computed: {
+    orderId() {
+      if (!this.isNewItem) return Number(this.$route.params.id);
+    },
     isNewItem() {
       return this.$route.params.id === 'new'
-    }
-  },
-  mounted() {
-    if(!this.isNewItem) {
-      this.item = Object.assign({}, this.$store.getters['user/getOneItem'](Number(this.$route.params.id)));
     }
   },
   methods: {
@@ -65,8 +63,17 @@ export default {
     inputOnForm(event) {
       this.item.fullName = event.target.value;
     }
-
-  }
+  },
+  async created() {
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['user/getDownloadFlag']) {
+        await this.$store.dispatch('user/findAll');
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['user/getOneItem'](this.orderId));
+      } else {
+        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['user/getOneItem'](this.orderId));
+      }
+    }
+  },
 }
 </script>
 

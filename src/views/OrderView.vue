@@ -28,8 +28,8 @@
           @dblclick="this.$router.push({ name: 'order-edit', params: {id: item.id} })">
         <td v-text="item.numberOrder"></td>
         <td v-text="item.numberOrderOther"></td>
-        <td v-text="getLocalDate(item.startDate)"></td>
-        <td v-text="getLocalDate(item.finishDate)"></td>
+        <td v-text="getDate(item.startDate)"></td>
+        <td v-text="getDate(item.finishDate)"></td>
         <td v-text="item.duty"></td>
         <td v-text="item.color"></td>
         <td v-text="item.woodMass"></td>
@@ -46,11 +46,6 @@
         <td>
           <div v-for="cutter in item.cutters" :key="cutter.id">
             {{ cutter.cutterName }}
-          </div>
-        </td>
-        <td>
-          <div v-for="workplace in item.workplaces" :key="workplace.id">
-            {{ workplace.nameWorkplace }}
           </div>
         </td>
         <td v-text="item.notes"></td>
@@ -74,7 +69,6 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import moment from "moment";
 
 export default {
   name: "OrderView",
@@ -94,7 +88,6 @@ export default {
         {column: 'binding', text: 'Переплет', sorted: true, showIcon: false, separated: 'desc', type: 'text'},
         {column: 'baguettes', text: 'Багет', sorted: false, showIcon: false, separated: 'desc', type: 'text'},
         {column: 'cutters', text: 'Фреза', sorted: false, showIcon: false, separated: 'desc', type: 'text'},
-        {column: 'workplaces', text: 'Участки', sorted: false, showIcon: false, separated: 'desc', type: 'text'},
         {column: 'notes', text: 'Примечание', sorted: true, showIcon: false, separated: 'desc', type: 'text'},
         {column: 'edit', text: 'Редактирование', sorted: false, showIcon: false, separated: '', type: ''},
       ],
@@ -105,12 +98,16 @@ export default {
     ...mapGetters('order', {items: 'getAllItems', getItem: 'getOneItem'}),
   },
   methods: {
-    ...mapActions('order', {save: 'add', remove: 'remove', getAll: 'findAll', setItemsSorted: 'setItemsSorted'}),
+    ...mapActions('order', {save: 'add', remove: 'remove', setItemsSorted: 'setItemsSorted'}),
     del(id) {
-      this.remove(id);
+      this.remove(id).then(() => {
+        this.$store.dispatch('technologicalProcess/changeDownloadFlag', false);
+      });
     },
-    getLocalDate(arr) {
-      return moment(arr).format('DD.MM.YYYY');
+    getDate(time) {
+      const option = {year: 'numeric', month: 'numeric', day: 'numeric'};
+      if (time !== null)
+        return new Date(time).toLocaleString('ru', option);
     },
     sortedOnTable(item) {
       if (!item.sorted) return;
@@ -126,6 +123,11 @@ export default {
       }
       this.setItemsSorted(item);
     },
+  },
+  created() {
+    if (this.$store.getters['authorization/isAuthenticated']) {
+      if (!this.$store.getters['order/getDownloadFlag']) this.$store.dispatch('order/findAll');
+    }
   }
 }
 </script>
