@@ -36,19 +36,6 @@
               {{ employee.fullName }}
             </option>
           </select>
-<!--
-          <label for="inputStartDate" class="form-label">Дата начала работ</label>
-          <input type="date"
-                 class="form-control"
-                 id="inputStartDate"
-                 v-model="newTechnologicalProcess.timeStartWork">
-          <label for="inputFinishDate" class="form-label">Дата окончания работ</label>
-          <input type="date"
-                 class="form-control"
-                 id="inputFinishDate"
-                 v-model="newTechnologicalProcess.timeFinishWork">
--->
-
           <button class="btn btn-primary">добавить</button>
           <button class="btn btn-danger" type="reset">Отмена</button>
         </div>

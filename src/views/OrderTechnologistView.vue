@@ -32,11 +32,13 @@
         <td v-text="item.numberOrderOther"></td>
         <td v-for="workplace in workplaces">
           <div v-for="technologicalProcess in _technologicalProcesses(item.id)">
-            <div  class="btn-group m-1" v-if="technologicalProcess.workplace.id === workplace.id">
+            <div class="btn-group m-1" v-if="technologicalProcess.workplace.id === workplace.id">
               <div class="btn"
-                   :class="setClassBtnEmployee(technologicalProcess)"
+                   :class="getClassBtnFindAndNotUndefined(technologicalProcess)"
                    @click="addDateEmployee(technologicalProcess, item)">
                 {{ technologicalProcess.employee.fullName }}
+                <!--                {{ arrClassesBtn.find(a => a.id === technologicalProcess.workplace.id.toString() + technologicalProcess.employee.id.toString()) }}-->
+                <!--                {{ getClassBtnEmployeeToArr(technologicalProcess) }}-->
               </div>
               <div class="btn-group">
                 <div class="btn btn-outline-danger" @click="delDateEmployee(technologicalProcess, item)">-</div>
@@ -49,10 +51,10 @@
           <router-link class="btn btn-secondary m-1" :to="{ name: 'order-edit', params: {id: item.id} }">Редактировать
             заказ
           </router-link>
-          <router-link class="btn btn-info m-1" :to="{ name: 'order-manager-edit-add-employees', params: {id: item.id} }">
+          <router-link class="btn btn-info m-1"
+                       :to="{ name: 'order-manager-edit-add-employees', params: {id: item.id} }">
             Добавить сотрудников
           </router-link>
-          <button class="btn btn-danger m-1" @click="del(item.id)">Удалить</button>
         </td>
       </tr>
       <tr v-else>
@@ -73,9 +75,17 @@ export default {
     return {
       arrSeparateAbc: [
         {column: 'numberOrder', text: 'Номер заказа', sorted: true, showIcon: false, separated: 'desc', type: 'text'},
-        {column: 'numberOrderOther', text: 'Номер заказа (другое)', sorted: true, showIcon: false, separated: 'desc', type: 'text'},
+        {
+          column: 'numberOrderOther',
+          text: 'Номер заказа (другое)',
+          sorted: true,
+          showIcon: false,
+          separated: 'desc',
+          type: 'text'
+        },
       ],
       itemsSorted: [],
+      arrClassesBtn: [],
     }
   },
   computed: {
@@ -84,55 +94,103 @@ export default {
     ...mapGetters('workplace', {workplaces: 'getAllItems'}),
   },
   methods: {
-    ...mapActions('order', {save: 'add', setItemsSorted: 'setItemsSorted'}),
-    ...mapActions('technologicalProcess', { updateTime: 'add'}),
+    ...mapActions('order', {setItemsSorted: 'setItemsSorted'}),
+    ...mapActions('technologicalProcess', {updateTime: 'add'}),
 
     _technologicalProcesses(id) {
       return this.technologicalProcesses.filter(t => t.order.id === id);
     },
-    setClassBtnEmployee(technologicalProcess) {
+
+    /**
+     * функция собирает ID classBtn из ID order, ID workplace, ID employee
+     * @param technologicalProcess
+     * @returns {string}
+     */
+    calculateIdClassBtn(technologicalProcess) {
+      return technologicalProcess.order.id.toString() + technologicalProcess.workplace.id.toString() + technologicalProcess.employee.id.toString();
+    },
+    /**
+     * функция ищет по ID classBtn и проверяет его на undefined
+     * @param technologicalProcess
+     * @returns {[string]|[string]|[string]|*}
+     */
+    getClassBtnFindAndNotUndefined(technologicalProcess) {
+      const classBtn = this.arrClassesBtn.find(a => a.id === this.calculateIdClassBtn(technologicalProcess));
+      if (classBtn !== undefined) return classBtn.arrClasses;
+    },
+
+    /**
+     * функция заполняет массив arrClassesBtn объектами при старте странички
+     * а также обновляет значения массива при нажатии на кнопки "+(имя сотрудника)" и "-"
+     * @param technologicalProcess
+     */
+    setClassBtnToArr(technologicalProcess) {
+      let newClassBtn = {};
+      const id = this.calculateIdClassBtn(technologicalProcess);
       if (technologicalProcess.timeStartWork === null && technologicalProcess.timeFinishWork === null) {
-        return ['btn-danger'];
+        newClassBtn = {id: id, arrClasses: ['btn-danger']};
       }
       if (technologicalProcess.timeStartWork !== null && technologicalProcess.timeFinishWork === null) {
-        return ['btn-warning'];
+        newClassBtn = {id: id, arrClasses: ['btn-warning']};
       }
       if (technologicalProcess.timeStartWork !== null && technologicalProcess.timeFinishWork !== null) {
-        return ['btn-success'];
+        newClassBtn = {id: id, arrClasses: ['btn-success']};
+      }
+      const classBtn = this.arrClassesBtn.find(c => c.id === id)
+      if (classBtn) {
+        this.arrClassesBtn = this.arrClassesBtn.map(o => o.id === newClassBtn.id ? newClassBtn : o)
+      } else {
+        this.arrClassesBtn.push(newClassBtn);
       }
     },
+
+    /**
+     * функция добавления времени взятия в работу и отработки технологической операции
+     * так же стартует промис сохранения данных на сервер
+     * и, после выполнения промиса, обновляется класс кнопки через массив arrClassesBtn
+     * @param technologicalProcess
+     * @param order
+     */
     addDateEmployee(technologicalProcess, order) {
       let updateTechnologicalProcess = simpleClone(technologicalProcess, order.id);
-      console.log(order);
       if (updateTechnologicalProcess.timeStartWork === null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeStartWork = Date.now();
-        this.updateTime(updateTechnologicalProcess);
+        this.updateTime(updateTechnologicalProcess).then(() => {
+          this.setClassBtnToArr(updateTechnologicalProcess);
+        });
       } else if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeFinishWork = Date.now();
-        this.updateTime(updateTechnologicalProcess);
+        this.updateTime(updateTechnologicalProcess).then(() => {
+          this.setClassBtnToArr(updateTechnologicalProcess);
+        });
       }
-      console.log('+');
-      this.getAll();
     },
+    /**
+     * функция удаления времени взятия в работу и отработки технологической операции
+     * так же стартует промис сохранения данных на сервер
+     * и, после выполнения промиса, обновляется класс кнопки через массив arrClassesBtn
+     * @param technologicalProcess
+     * @param order
+     */
     delDateEmployee(technologicalProcess, order) {
       let updateTechnologicalProcess = simpleClone(technologicalProcess, order.id);
-      console.log(updateTechnologicalProcess);
       if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork !== null) {
         updateTechnologicalProcess.timeFinishWork = null;
-        this.updateTime(updateTechnologicalProcess);
+        this.updateTime(updateTechnologicalProcess).then(() => {
+          this.setClassBtnToArr(updateTechnologicalProcess);
+        });
       } else if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeStartWork = null;
-        this.updateTime(updateTechnologicalProcess);
+        this.updateTime(updateTechnologicalProcess).then(() => {
+          this.setClassBtnToArr(updateTechnologicalProcess);
+        });
       }
-      console.log('-')
-      this.getAll();
     },
-    del(id) {
-      this.remove(id);
-    },
-    getLocalDate(arr) {
-      return moment(arr).format('DD.MM.YYYY');
-    },
+
+    /**
+     * функция сортировки основных элементов таблицы
+     * @param item
+     */
     sortedOnTable(item) {
       if (!item.sorted) return;
       this.arrSeparateAbc.forEach(i => i.showIcon = false);
@@ -155,29 +213,37 @@ export default {
     if (this.$store.getters['authorization/isAuthenticated']) {
       if (!this.$store.getters['order/getDownloadFlag']) this.$store.dispatch('order/findAll');
       if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
-      if (!this.$store.getters['technologicalProcess/getDownloadFlag']) this.$store.dispatch('technologicalProcess/findAll');
+      if (!this.$store.getters['technologicalProcess/getDownloadFlag']) {
+        this.$store.dispatch('technologicalProcess/findAll').then(() => {
+          this.technologicalProcesses.forEach(t => {
+            this.setClassBtnToArr(t);
+          })
+        });
+      }
     }
   },
 }
 
-function simpleClone(parent, orderId) {
+/**
+ * Функция создания простого клона объекта technologicalProcess
+ * @param parent
+ * @param orderId
+ * @returns {{employee: {id: string}, workplace: {id: string}, order: {id: string}}}
+ */
+function simpleClone(technologicalProcess, orderId) {
   let clone = {
-    order: { id: '' },
-    employee: { id: '' },
-    workplace: { id: '' },
-    timeFinishWork: [],
-    timeStartWork: [],
+    order: {id: ''},
+    employee: {id: ''},
+    workplace: {id: ''},
   };
-  for (let key1 in parent) {
-    if (!(parent[key1] instanceof Object)) {
-      clone[key1] = parent[key1];
+  for (let key1 in technologicalProcess) {
+    if (!(technologicalProcess[key1] instanceof Object)) {
+      clone[key1] = technologicalProcess[key1];
     }
   }
-  clone.timeStartWork = parent.timeStartWork;
-  clone.timeFinishWork = parent.timeFinishWork;
   clone.order.id = orderId;
-  clone.employee.id = parent.employee.id;
-  clone.workplace.id = parent.workplace.id;
+  clone.employee.id = technologicalProcess.employee.id;
+  clone.workplace.id = technologicalProcess.workplace.id;
   return clone;
 }
 </script>
