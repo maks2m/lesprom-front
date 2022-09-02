@@ -215,10 +215,10 @@ export default {
       if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
       if (!this.$store.getters['technologicalProcess/getDownloadFlag']) {
         this.$store.dispatch('technologicalProcess/findAll').then(() => {
-          this.technologicalProcesses.forEach(t => {
-            this.setClassBtnToArr(t);
-          })
+          this.technologicalProcesses.forEach(t => this.setClassBtnToArr(t));
         });
+      } else {
+        this.technologicalProcesses.forEach(t => this.setClassBtnToArr(t));
       }
     }
   },
