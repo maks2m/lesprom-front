@@ -1,4 +1,4 @@
-import api from '../api/index'
+import api from '../services/api/index'
 
 export default {
     install: (app, options) => {

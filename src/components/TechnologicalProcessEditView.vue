@@ -47,12 +47,10 @@
     <table class="table table-striped table-hover table-sm">
       <thead class="table-info">
       <tr>
-        <th>Код операции</th>
-        <th>Участок</th>
-        <th>Сотрудник</th>
-        <th>Дата начала работ</th>
-        <th>Дата окончания работ</th>
-        <th>Редактирование</th>
+        <th v-for="item in arrSeparateAbc"
+            :key="item.column">
+          <div :class="item.column === 'operationCode' ? 'bi-caret-down' : ''">{{ item.text }}</div>
+        </th>
       </tr>
       </thead>
       <tbody>
@@ -89,6 +87,28 @@ export default {
       newOrder: {},
       selectedWorkplace: {},
       selectedEmployee: {},
+      arrSeparateAbc: [
+        {column: 'operationCode', text: 'Код операции', sorted: true, showIcon: false, separated: 'desc', type: 'text'},
+        {column: 'workplace', text: 'Участок', sorted: false, showIcon: false, separated: 'desc', type: 'text'},
+        {column: 'employee', text: 'Сотрудник', sorted: false, showIcon: false, separated: 'desc', type: 'text'},
+        {
+          column: 'timeStartWork',
+          text: 'Дата начала работ',
+          sorted: false,
+          showIcon: false,
+          separated: 'desc',
+          type: 'text'
+        },
+        {
+          column: 'timeFinishWork',
+          text: 'Дата окончания работ',
+          sorted: false,
+          showIcon: false,
+          separated: 'desc',
+          type: 'text'
+        },
+        {column: 'edit', text: 'Редактирование', sorted: false, showIcon: false, separated: '', type: ''},
+      ],
       newTechnologicalProcess: {
         id: '',
         timeStartWork: '',
@@ -120,22 +140,52 @@ export default {
     },
   },
   methods: {
-    ...mapActions('technologicalProcess', {saveTechnologicalProcess: 'add', removeTechnologicalProcess: 'remove'}),
+    ...mapActions('technologicalProcess', {
+      saveTechnologicalProcess: 'add',
+      removeTechnologicalProcess: 'remove',
+      setItemsSorted: 'setItemsSorted'
+    }),
     ...mapActions('order', {replaceOrder: 'add'}),
     sendForm() {
       this.newTechnologicalProcess.order.id = this.order.id;
       this.newTechnologicalProcess.employee.id = this.selectedEmployee.id;
       this.newTechnologicalProcess.workplace.id = this.selectedWorkplace.id;
-      this.saveTechnologicalProcess(this.newTechnologicalProcess);
+      this.saveTechnologicalProcess(this.newTechnologicalProcess).then(() => {
+        this.$store.dispatch('technologicalProcess/setItemsSorted', {column: 'operationCode', separated: 'asc', type: 'number'});
+      });
     },
     del(id) {
       this.removeTechnologicalProcess(id);
     },
     getTime(time) {
-      const option = {year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',  second: 'numeric'};
+      const option = {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+      };
       if (time !== null)
         return new Date(time).toLocaleString('ru', option);
-    }
+    },
+    sortedOnTable(item) {
+      if (!item.sorted) return;
+      this.arrSeparateAbc.forEach(i => i.showIcon = false);
+      item.showIcon = true;
+      switch (item.separated) {
+        case 'asc':
+          item.separated = 'desc';
+          break;
+        case 'desc':
+          item.separated = 'asc';
+          break;
+      }
+      this.setItemsSorted(item);
+    },
+  },
+  mounted() {
+    this.$store.dispatch('technologicalProcess/setItemsSorted', {column: 'operationCode', separated: 'asc', type: 'number'});
   },
   created() {
     if (this.$store.getters['authorization/isAuthenticated']) {

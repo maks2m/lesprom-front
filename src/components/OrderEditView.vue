@@ -181,10 +181,8 @@ export default {
         woodVeneer: '',
         woodMass: '',
         color: '',
-        workplaces: [],
         cutters: [],
         baguettes: [],
-        timeOfEmployeeOnOrders: [],
         notes: ''
       }
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div class="container">
     <div class="row">
       <div class="card-group">
         <h3 class="text-black m-2">Role</h3>

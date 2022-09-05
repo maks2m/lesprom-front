@@ -4,6 +4,7 @@ import store from "@/store";
 import HomeView from '../views/HomeView.vue'
 import OrderView from '../views/OrderView'
 import OrderTechnologistView from "@/views/OrderTechnologistView";
+import OrderWorkplaceView from "@/views/OrderWorkplaceView";
 import BaguetteView from '../views/BaguetteView'
 import CutterView from '../views/CutterView'
 import WorkplaceView from '../views/WorkplaceView'
@@ -60,6 +61,24 @@ const routes = [
       requiresUser: true
     }
   },
+  {
+    path: '/order-workplace',
+    name: 'order-workplace',
+    component: OrderWorkplaceView,
+    meta: {
+      requiresUser: true
+    }
+  },
+/*
+  {
+    path: '/order-workplace/:id',
+    name: 'order-workplace',
+    component: OrderWorkplaceView,
+    meta: {
+      requiresUser: true
+    }
+  },
+*/
   {
     path: '/baguette',
     name: 'baguette',

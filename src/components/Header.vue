@@ -56,6 +56,7 @@ export default {
       menu: [
         { route: 'order-manager', text: 'Заказы (менеджер)', access: ['ADMIN', 'USER'] },
         { route: 'order-technologist', text: 'Заказы (технолог)', access: ['ADMIN', 'USER'] },
+        { route: 'order-workplace', text: 'Заказы (участки)', access: ['ADMIN', 'USER'] },
         { route: 'baguette', text: 'Багеты', access: ['ADMIN', 'USER'] },
         { route: 'cutter', text: 'Фрезы', access: ['ADMIN', 'USER'] },
         { route: 'workplace', text: 'Участки', access: ['ADMIN', 'USER'] },
@@ -68,9 +69,6 @@ export default {
   },
   computed: {
     ...mapGetters('authorization', { isLoggedIn: 'isAuthenticated', user: 'getUser' }),
-    test(){
-
-    },
   },
   methods: {
     login() {

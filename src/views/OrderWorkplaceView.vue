@@ -1,10 +1,22 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="card-group">
-        <h3 class="text-black m-2">Заказы</h3>
-        <router-link class="btn btn-primary m-2" :to="{ name: 'order-edit', params: {id: 'new'} }">Добавить
-        </router-link>
+      <h3 class="col-auto text-black m-2">Заказы</h3>
+      <div class="col-auto m-2">
+        <div class="input-group">
+          <label for="selectBaguette" class="input-group-text">Выберите участок</label>
+          <select id="selectBaguette"
+                  class="form-select"
+                  v-model="selectedWorkplace"
+                  @change="saveWorkplaceInLocaleStorage($event.target.options)">
+            <option disabled value="">Выберите участок</option>
+            <option v-for="workplace in workplaces"
+                    :key="workplace.id"
+                    :value="workplace">
+              {{ workplace.nameWorkplace }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
     <table class="table table-striped table-hover table-sm">
@@ -21,17 +33,16 @@
             </div>
           </div>
         </th>
-        <th v-for="workplace in workplaces">{{ workplace.nameWorkplace }}</th>
-        <th>Редактирование</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(item) in orders" :key="item.id" v-if="orders.length">
+      <tr v-for="(item) in _orders" :key="item.id" v-if="_orders.length">
 <!--          @dblclick="this.$router.push({ name: 'order-edit', params: {id: item.id} })">-->
         <td v-text="item.numberOrder"></td>
         <td v-text="item.numberOrderOther"></td>
-        <td v-for="workplace in workplaces">
-          <div v-for="technologicalProcess in _technologicalProcesses(item.id, workplace.id)">
+
+        <td>
+          <div v-for="technologicalProcess in _technologicalProcesses(item.id)">
             <div class="btn-group m-1">
               <div class="btn"
                    :class="getClassBtnFindAndNotUndefined(technologicalProcess)"
@@ -49,10 +60,12 @@
           <router-link class="btn btn-secondary m-1" :to="{ name: 'order-edit', params: {id: item.id} }">Редактировать
             заказ
           </router-link>
+<!--
           <router-link class="btn btn-info m-1"
                        :to="{ name: 'order-manager-edit-add-employees', params: {id: item.id} }">
             Добавить сотрудников
           </router-link>
+-->
         </td>
       </tr>
       <tr v-else>
@@ -65,22 +78,17 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import moment from "moment";
 
 export default {
-  name: "OrderTechnologistView",
+  name: "OrderWorkplaceView",
   data() {
     return {
+      selectedWorkplace: {},
       arrSeparateAbc: [
         {column: 'numberOrder', text: 'Номер заказа', sorted: true, showIcon: false, separated: 'desc', type: 'text'},
-        {
-          column: 'numberOrderOther',
-          text: 'Номер заказа (другое)',
-          sorted: true,
-          showIcon: false,
-          separated: 'desc',
-          type: 'text'
-        },
+        {column: 'numberOrderOther', text: 'Номер заказа (другое)', sorted: true, showIcon: false, separated: 'desc', type: 'text'},
+        {column: 'employee', text: 'Сотрудники', sorted: false, showIcon: false, separated: '', type: ''},
+        {column: 'edit', text: 'Редактирование', sorted: false, showIcon: false, separated: '', type: ''},
       ],
       itemsSorted: [],
       arrClassesBtn: [],
@@ -88,19 +96,43 @@ export default {
   },
   computed: {
     ...mapGetters('order', {orders: 'getAllItems'}),
-    ...mapGetters('technologicalProcess', {technologicalProcesses: 'getAllItems'}),
-    ...mapGetters('workplace', {workplaces: 'getAllItems'}),
+    ...mapGetters('technologicalProcess', {technologicalProcesses: 'getAllItems', getOneTechnologicalProcess: 'getOneItem'}),
+    ...mapGetters('workplace', {workplaces: 'getAllItems', getOneWorkplace: 'getOneItem'}),
+
+    _orders() {
+      return this.orders.filter(o => {
+        return o.technologicalProcesses.some(t => {
+          return t.workplace.id === this.selectedWorkplace.id && !this.isFinishWork(this.getOneTechnologicalProcess(t.id));
+        })
+      })
+    },
   },
   methods: {
     ...mapActions('order', {setItemsSorted: 'setItemsSorted'}),
     ...mapActions('technologicalProcess', {updateTime: 'add'}),
 
-    _technologicalProcesses(orderId, workplaceId) {
-      return this.technologicalProcesses.filter(t => t.order.id === orderId && t.workplace.id === workplaceId);
+    saveWorkplaceInLocaleStorage(selected) {
+      this.selectedWorkplace = selected[selected.selectedIndex]._value;
+      localStorage.setItem('active_workplace', JSON.stringify(selected[selected.selectedIndex]._value));
+    },
+
+    isFinishWork(technologicalProcess) {
+      return (technologicalProcess.timeStartWork !== null && technologicalProcess.timeFinishWork !== null);
+    },
+
+    _technologicalProcesses(orderId) {
+      // доработать, подумать как оптимизировать, убрать лишние заказы
+      const tp = this.technologicalProcesses.filter(t => t.order.id === orderId);
+      const sortTP = tp.sort((firstTP, secondTp) => firstTP.operationCode - secondTp.operationCode);
+      const firstSortedTP = sortTP.find(tp => tp.timeStartWork === null || tp.timeFinishWork === null);
+      const arrSortedTP = sortTP.filter(tp => tp.workplace.id === firstSortedTP.workplace.id && tp.workplace.id === this.selectedWorkplace.id);
+      return arrSortedTP !== null ? arrSortedTP : null;
+
+      //return this.technologicalProcesses.filter(t => t.order.id === orderId && t.workplace.id === this.selectedWorkplace.id);
     },
 
     /**
-     * функция собирает ID classBtn из ID order, ID workplace, ID employee
+     * Функция собирает ID classBtn из ID order, ID workplace, ID employee
      * @param technologicalProcess
      * @returns {string}
      */
@@ -108,7 +140,7 @@ export default {
       return technologicalProcess.id;
     },
     /**
-     * функция ищет по ID classBtn и проверяет его на undefined
+     * Функция ищет по ID classBtn и проверяет его на undefined
      * @param technologicalProcess
      * @returns {[string]|[string]|[string]|*}
      */
@@ -118,7 +150,7 @@ export default {
     },
 
     /**
-     * функция заполняет массив arrClassesBtn объектами при старте странички
+     * Функция заполняет массив arrClassesBtn объектами при старте странички,
      * а также обновляет значения массива при нажатии на кнопки "+(имя сотрудника)" и "-"
      * @param technologicalProcess
      */
@@ -143,7 +175,7 @@ export default {
     },
 
     /**
-     * функция добавления времени взятия в работу и отработки технологической операции
+     * Функция добавления времени взятия в работу и отработки технологической операции,
      * так же стартует промис сохранения данных на сервер
      * и, после выполнения промиса, обновляется класс кнопки через массив arrClassesBtn
      * @param technologicalProcess
@@ -164,7 +196,7 @@ export default {
       }
     },
     /**
-     * функция удаления времени взятия в работу и отработки технологической операции
+     * Функция удаления времени взятия в работу и отработки технологической операции
      * так же стартует промис сохранения данных на сервер
      * и, после выполнения промиса, обновляется класс кнопки через массив arrClassesBtn
      * @param technologicalProcess
@@ -186,7 +218,7 @@ export default {
     },
 
     /**
-     * функция сортировки основных элементов таблицы
+     * Функция сортировки основных элементов таблицы
      * @param item
      */
     sortedOnTable(item) {
@@ -203,6 +235,16 @@ export default {
       }
       this.setItemsSorted(item);
     },
+
+    /**
+     * Функция установки параметров в хуке create
+     */
+    setOptionsInCreateHook() {
+      this.technologicalProcesses.forEach(t => this.setClassBtnToArr(t));
+      if (localStorage.getItem('active_workplace')) {
+        this.selectedWorkplace = JSON.parse(localStorage.getItem('active_workplace'));
+      }
+    }
   },
   mounted() {
     this.$store.dispatch('workplace/setItemsSorted', {column: 'id', separated: 'asc', type: 'text'});
@@ -213,10 +255,10 @@ export default {
       if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
       if (!this.$store.getters['technologicalProcess/getDownloadFlag']) {
         this.$store.dispatch('technologicalProcess/findAll').then(() => {
-          this.technologicalProcesses.forEach(t => this.setClassBtnToArr(t));
+          this.setOptionsInCreateHook();
         });
       } else {
-        this.technologicalProcesses.forEach(t => this.setClassBtnToArr(t));
+        this.setOptionsInCreateHook();
       }
     }
   },
