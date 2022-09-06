@@ -21,6 +21,8 @@ export default {
         isAuthenticated: state => state.isAuthenticated,
         isUserRole: state => state.user.roles.includes('USER'),
         isAdminRole: state => state.user.roles.includes('ADMIN'),
+        isManagerRole: state => state.user.roles.includes('MANAGER'),
+        isTechnologRole: state => state.user.roles.includes('TECHNOLOG'),
         getAppPlay: state => state.isAppPlay,
 
     },

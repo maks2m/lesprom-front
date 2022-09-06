@@ -54,13 +54,13 @@ export default {
         password: '',
       },
       menu: [
-        { route: 'order-manager', text: 'Заказы (менеджер)', access: ['ADMIN', 'USER'] },
-        { route: 'order-technologist', text: 'Заказы (технолог)', access: ['ADMIN', 'USER'] },
+        { route: 'order-manager', text: 'Заказы (менеджер)', access: ['ADMIN', 'MANAGER'] },
+        { route: 'order-technologist', text: 'Заказы (технолог)', access: ['ADMIN', 'TECHNOLOG'] },
         { route: 'order-workplace', text: 'Заказы (участки)', access: ['ADMIN', 'USER'] },
-        { route: 'baguette', text: 'Багеты', access: ['ADMIN', 'USER'] },
-        { route: 'cutter', text: 'Фрезы', access: ['ADMIN', 'USER'] },
-        { route: 'workplace', text: 'Участки', access: ['ADMIN', 'USER'] },
-        { route: 'employee', text: 'Сотрудники', access: ['ADMIN', 'USER'] },
+        { route: 'baguette', text: 'Багеты', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
+        { route: 'cutter', text: 'Фрезы', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
+        { route: 'workplace', text: 'Участки', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
+        { route: 'employee', text: 'Сотрудники', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
         { route: 'user', text: 'User', access: ['ADMIN'] },
         { route: 'role', text: 'Role', access: ['ADMIN'] },
         { route: 'test', text: 'test', access: ['ADMIN'] },
@@ -73,13 +73,16 @@ export default {
   methods: {
     login() {
       this.$load(() => {
-        this.$store.dispatch('authorization/login', this.userForm);
+        this.$store.dispatch('authorization/login', this.userForm).then(() => {
+          this.$router.push('/');
+        });
       });
     },
     logout() {
       this.$load(() => {
-        this.$store.dispatch('authorization/logout');
-        this.$router.push('/');
+        this.$store.dispatch('authorization/logout').then(() => {
+          this.$router.push('/');
+        });
       });
     },
     checkAuthorization(arrRoles) {

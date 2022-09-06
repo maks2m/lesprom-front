@@ -57,12 +57,10 @@
         </td>
 
         <td>
-          <router-link class="btn btn-secondary m-1" :to="{ name: 'order-edit', params: {id: item.id} }">Редактировать
-            заказ
-          </router-link>
+          <router-link class="btn btn-secondary m-1" :to="{ name: 'order-view', params: {id: item.id} }">Подробно</router-link>
 <!--
           <router-link class="btn btn-info m-1"
-                       :to="{ name: 'order-manager-edit-add-employees', params: {id: item.id} }">
+                       :to="{ name: 'order-add-employees', params: {id: item.id} }">
             Добавить сотрудников
           </router-link>
 -->

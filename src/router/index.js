@@ -21,36 +21,42 @@ import BaguetteEditView from "@/components/BaguetteEditView";
 import CutterEditView from "@/components/CutterEditView";
 import RoleEditView from "@/components/RoleEditView";
 import OrderEditView from "@/components/OrderEditView";
+import OrderWatchView from "@/components/OrderWatchView";
 import TechnologicalProcessEditView from "@/components/TechnologicalProcessEditView";
 
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: HomeView,
+    meta: {
+      notRequires: true,
+    }
   },
   {
     path: '/order-manager',
     name: 'order-manager',
     component: OrderView,
     meta: {
-      requiresUser: true
+      requiresManager: true,
     }
   },
   {
-    path: '/order/:id',
+    path: '/order/:id/order-edit',
     name: 'order-edit',
     component: OrderEditView,
     meta: {
-      requiresUser: true
+      requiresManager: true,
+      requiresTechnolog: true,
     }
   },
   {
-    path: '/order-manager/:id/add-employees',
-    name: 'order-manager-edit-add-employees',
+    path: '/order/:id/add-employees',
+    name: 'order-add-employees', //order-manager-edit-add-employees
     component: TechnologicalProcessEditView,
     meta: {
-      requiresUser: true
+      requiresManager: true,
+      requiresTechnolog: true,
     }
   },
   {
@@ -58,7 +64,7 @@ const routes = [
     name: 'order-technologist',
     component: OrderTechnologistView,
     meta: {
-      requiresUser: true
+      requiresTechnolog: true,
     }
   },
   {
@@ -66,25 +72,24 @@ const routes = [
     name: 'order-workplace',
     component: OrderWorkplaceView,
     meta: {
-      requiresUser: true
+      requiresUser: true,
     }
   },
-/*
   {
     path: '/order-workplace/:id',
-    name: 'order-workplace',
-    component: OrderWorkplaceView,
+    name: 'order-view',
+    component: OrderWatchView,
     meta: {
-      requiresUser: true
+      requiresUser: true,
     }
   },
-*/
   {
     path: '/baguette',
     name: 'baguette',
     component: BaguetteView,
     meta: {
-      requiresUser: true
+      requiresManager: true,
+      requiresTechnolog: true,
     }
   },
   {
@@ -92,7 +97,8 @@ const routes = [
     name: 'baguette-edit',
     component: BaguetteEditView,
     meta: {
-      requiresUser: true
+      requiresManager: true,
+      requiresTechnolog: true,
     }
   },
   {
@@ -100,7 +106,8 @@ const routes = [
     name: 'cutter',
     component: CutterView,
     meta: {
-      requiresUser: true
+      requiresManager: true,
+      requiresTechnolog: true,
     }
   },
   {
@@ -108,7 +115,8 @@ const routes = [
     name: 'cutter-edit',
     component: CutterEditView,
     meta: {
-      requiresUser: true
+      requiresManager: true,
+      requiresTechnolog: true,
     }
   },
   {
@@ -116,7 +124,9 @@ const routes = [
     name: 'workplace',
     component: WorkplaceView,
     meta: {
-      requiresUser: true
+      requiresUser: true,
+      requiresManager: true,
+      requiresTechnolog: true,
     }
   },
   {
@@ -124,7 +134,8 @@ const routes = [
     name: 'workplace-edit',
     component: WorkplaceEditView,
     meta: {
-      requiresUser: true
+      requiresManager: true,
+      requiresTechnolog: true,
     }
   },
   {
@@ -132,7 +143,9 @@ const routes = [
     name: 'employee',
     component: EmployeeView,
     meta: {
-      requiresUser: true
+      requiresUser: true,
+      requiresManager: true,
+      requiresTechnolog: true,
     }
   },
   {
@@ -140,7 +153,8 @@ const routes = [
     name: 'employee-edit',
     component: EmployeeEditView,
     meta: {
-      requiresUser: true
+      requiresManager: true,
+      requiresTechnolog: true,
     }
   },
   {
@@ -186,7 +200,10 @@ const routes = [
   //  всегда в конце
   {
     path: '/:any(.*)',
-    component: PageNotFoundView
+    component: PageNotFoundView,
+    meta: {
+      notRequires: true,
+    }
   }
 ]
 
@@ -202,17 +219,20 @@ router.beforeEach((to, from, next) => {
   // to - откуда переходишь
   // from - куда переходишь
   // next - функция перехода
-  if (to.matched.some(record => record.meta.requiresAdmin)) {
-    if (store.getters["authorization/isAuthenticated"] && store.getters["authorization/isAdminRole"]) {
-      next();
-    }
-    //next("/");
-  } else if (to.matched.some(record => record.meta.requiresUser)) {
-    if (store.getters["authorization/isAuthenticated"] && store.getters["authorization/isUserRole"]) {
-      next();
-    }
-    //next("/");
-  } else {
+  if (to.matched.some(record => record.meta.requiresAdmin) && store.getters["authorization/isAuthenticated"] && store.getters["authorization/isAdminRole"]) {
+    // console.log('requiresAdmin')
+    next();
+  } else if (to.matched.some(record => record.meta.requiresManager) && store.getters["authorization/isAuthenticated"] && store.getters["authorization/isManagerRole"]) {
+    // console.log('requiresManager')
+    next();
+  } else if (to.matched.some(record => record.meta.requiresTechnolog) && store.getters["authorization/isAuthenticated"] && store.getters["authorization/isTechnologRole"]) {
+    // console.log('requiresTechnolog')
+    next();
+  } else if (to.matched.some(record => record.meta.requiresUser) && store.getters["authorization/isAuthenticated"] && store.getters["authorization/isUserRole"]) {
+    // console.log('requiresUser')
+    next();
+  } else if (to.matched.some(record => record.meta.notRequires)) {
+    // console.log('notRequires')
     next();
   }
 });

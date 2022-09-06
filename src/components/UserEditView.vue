@@ -72,7 +72,6 @@ export default {
   methods: {
     ...mapActions('user', { addItem: 'add' }),
     sendForm() {
-      console.log(this.item);
       this.addItem(this.item);
       this.$router.push('/user');
     },

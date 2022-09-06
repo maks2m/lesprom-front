@@ -53,7 +53,7 @@
           <router-link class="btn btn-secondary m-1" :to="{ name: 'order-edit', params: {id: item.id} }">Редактировать
             заказ
           </router-link>
-          <router-link class="btn btn-info m-1" :to="{ name: 'order-manager-edit-add-employees', params: {id: item.id} }">
+          <router-link class="btn btn-info m-1" :to="{ name: 'order-add-employees', params: {id: item.id} }">
             Добавить сотрудников
           </router-link>
           <button class="btn btn-danger m-1" @click="del(item.id)">Удалить</button>

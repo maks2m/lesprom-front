@@ -3,8 +3,6 @@
     <div class="row">
       <div class="card-group">
         <h3 class="text-black m-2">Заказы</h3>
-        <router-link class="btn btn-primary m-2" :to="{ name: 'order-edit', params: {id: 'new'} }">Добавить
-        </router-link>
       </div>
     </div>
     <table class="table table-striped table-hover table-sm">
@@ -50,7 +48,7 @@
             заказ
           </router-link>
           <router-link class="btn btn-info m-1"
-                       :to="{ name: 'order-manager-edit-add-employees', params: {id: item.id} }">
+                       :to="{ name: 'order-add-employees', params: {id: item.id} }">
             Добавить сотрудников
           </router-link>
         </td>
