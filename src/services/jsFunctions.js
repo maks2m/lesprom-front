@@ -1,4 +1,5 @@
 
+/*
 export default {
     sortedTPOnOrderAndOperationCode(technologicalProcesses, orderId) {
         const TP = technologicalProcesses.filter(t => t.order.id === orderId);
@@ -13,3 +14,5 @@ export default {
         return false;
     },
 }
+*/
+

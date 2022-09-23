@@ -14,8 +14,8 @@
         <th>Редактирование</th>
       </tr>
       </thead>
-      <tbody>
-      <tr v-for="(item) in items" :key="item.id" v-if="items.length" @dblclick="this.$router.push({ name: 'baguette-edit', params: {id: item.id} })">
+      <tbody v-if="items.length">
+      <tr v-for="(item) in items" :key="item.id" @dblclick="this.$router.push({ name: 'baguette-edit', params: {id: item.id} })">
 <!--        <td v-text="item.id"></td>-->
         <td v-text="item.baguetteName"></td>
         <td>
@@ -25,8 +25,10 @@
           </div>
         </td>
       </tr>
-      <tr v-else>
-        <td>Список пуст!</td>
+      </tbody>
+      <tbody v-else>
+      <tr>
+        <td colspan="20" class="text-center">Список пуст!</td>
       </tr>
       </tbody>
     </table>
@@ -47,7 +49,7 @@ export default {
     ...mapGetters('baguette', { items: 'getAllItems', getItem: 'getOneItem' }),
   },
   methods: {
-    ...mapActions('baguette', { save: 'add', remove: 'remove' }),
+    ...mapActions('baguette', { save: 'add', remove: 'remove', changeUrlParam: 'changeUrlParam' }),
     del(id) {
       this.remove(id).then(() => {
         this.$store.dispatch('order/changeDownloadFlag', false);
@@ -55,6 +57,12 @@ export default {
     }
   },
   created() {
+    const urlParams = new URLSearchParams(window.location.search);
+    this.changeUrlParam({
+      pageNo: -1,
+      pageSize: '',
+      sortBy: urlParams.get("sortBy") ? urlParams.get("sortBy") : 'id',
+    });
     if (this.$store.getters['authorization/isAuthenticated']) {
       if (!this.$store.getters['baguette/getDownloadFlag']) this.$store.dispatch('baguette/findAll');
     }

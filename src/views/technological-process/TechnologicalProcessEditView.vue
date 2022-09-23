@@ -6,7 +6,7 @@
 
     <hr>
 
-    <form @submit.prevent="sendForm">
+    <form @submit.prevent="sendForm" v-if="workplaceDownloadFlag">
       <div class="row">
         <div class="input-group">
           <span class="input-group-text" id="inputNumberOrderOther">Код операции</span>
@@ -53,38 +53,42 @@
         </th>
       </tr>
       </thead>
-      <tbody>
-      <tr v-for="item in _technologicalProcesses"
-          :key="item.id"
-          v-if="_technologicalProcesses.length">
-        <td v-text="item.operationCode"></td>
-        <td v-text="item.workplace.nameWorkplace"></td>
-        <td v-text="item.employee.fullName"></td>
-        <td v-text="getTime(item.timeStartWork)"></td>
-        <td v-text="getTime(item.timeFinishWork)"></td>
-        <td>
-          <div class="btn-group">
-            <button class="btn btn-danger" @click="del(item.id)">Удалить</button>
-          </div>
-        </td>
-      </tr>
-      <tr v-else>
-        <td>Список пуст!</td>
-      </tr>
-      </tbody>
+      <template v-if="orderDownloadFlag || orderDownloadPageableFlag || downloadOnceItem">
+        <tbody v-if="_technologicalProcesses.length">
+        <tr v-for="item in _technologicalProcesses"
+            :key="item.id">
+          <td v-text="item.operationCode"></td>
+          <td v-text="item.workplace.nameWorkplace"></td>
+          <td v-text="item.employee.fullName"></td>
+          <td v-text="getTime(item.timeStartWork)"></td>
+          <td v-text="getTime(item.timeFinishWork)"></td>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-danger" @click="del(item.id)">Удалить</button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+        <tbody v-else>
+        <tr>
+          <td colspan="20" class="text-center">Список пуст!</td>
+        </tr>
+        </tbody>
+      </template>
     </table>
   </div>
 </template>
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import moment from "moment";
+import cloneDeep from 'lodash.clonedeep'
 
 export default {
   name: "TechnologicalProcessEditView",
   data() {
     return {
-      newOrder: {},
+      order: {},
+      downloadOnceItem: false,
       selectedWorkplace: {},
       selectedEmployee: {},
       arrSeparateAbc: [
@@ -127,35 +131,70 @@ export default {
     }
   },
   computed: {
-    editOrderId() {
+    orderId() {
       return Number(this.$route.params.id);
     },
-    ...mapGetters('workplace', {workplaces: 'getAllItems', downloadFlag: 'getDownloadFlag'}),
-    ...mapGetters('technologicalProcess', {technologicalProcesses: 'getAllItems'}),
+    ...mapGetters('order', {
+      orderDownloadFlag: 'getDownloadFlag',
+      orderDownloadPageableFlag: 'getDownloadPageableFlag',
+      orderGetOneItem: 'getOneItem',
+      orderGetOneItemPageable: 'getOneItemPageable',
+    }),
+    ...mapGetters('workplace', {workplaces: 'getAllItems', workplaceDownloadFlag: 'getDownloadFlag'}),
     _technologicalProcesses() {
-      return this.technologicalProcesses.filter(t => t.order.id === this.editOrderId);
-    },
-    order() {
-      return this.$store.getters['order/getOneItem'](Number(this.editOrderId));
+      if (this.orderDownloadFlag || this.orderDownloadPageableFlag || this.downloadOnceItem)
+        return this.order.technologicalProcesses.sort((a, b) => a.operationCode - b.operationCode);
     },
   },
   methods: {
     ...mapActions('technologicalProcess', {
       saveTechnologicalProcess: 'add',
       removeTechnologicalProcess: 'remove',
-      setItemsSorted: 'setItemsSorted'
     }),
-    ...mapActions('order', {replaceOrder: 'add'}),
+    ...mapActions('order', {orderFindOne: 'findOne', orderFindOnePageable: 'findOnePageable',}),
     sendForm() {
       this.newTechnologicalProcess.order.id = this.order.id;
       this.newTechnologicalProcess.employee.id = this.selectedEmployee.id;
       this.newTechnologicalProcess.workplace.id = this.selectedWorkplace.id;
       this.saveTechnologicalProcess(this.newTechnologicalProcess).then(() => {
-        this.$store.dispatch('technologicalProcess/setItemsSorted', {column: 'operationCode', separated: 'asc', type: 'number'});
+
+        if (this.orderDownloadFlag) {
+          this.orderFindOne(this.orderId).then(() => {
+            this.order = cloneDeep(this.orderGetOneItem(this.orderId));
+          });
+        } else if (this.orderDownloadPageableFlag) {
+          console.log('orderDownloadPageableFlag save')
+          this.orderFindOnePageable(this.orderId).then(() => {
+            this.order = cloneDeep(this.orderGetOneItemPageable(this.orderId));
+          });
+        } else if (this.downloadOnceItem) {
+          this.orderFindOne(this.orderId).then((data) => {
+            this.order = data;
+          });
+        }
+
+        this.newTechnologicalProcess.operationCode = '';
+        this.selectedEmployee = {};
+        this.selectedWorkplace = {};
       });
     },
     del(id) {
-      this.removeTechnologicalProcess(id);
+      this.removeTechnologicalProcess(id).then(() => {
+        if (this.orderDownloadFlag) {
+          this.orderFindOne(this.orderId).then(() => {
+            this.order = cloneDeep(this.orderGetOneItem(this.orderId));
+          });
+        } else if (this.orderDownloadPageableFlag) {
+          console.log('orderDownloadPageableFlag del')
+          this.orderFindOnePageable(this.orderId).then(() => {
+            this.order = cloneDeep(this.orderGetOneItemPageable(this.orderId));
+          });
+        } else if (this.downloadOnceItem) {
+          this.orderFindOne(this.orderId).then((data) => {
+            this.order = data;
+          });
+        }
+      });
     },
     getTime(time) {
       const option = {
@@ -169,32 +208,34 @@ export default {
       if (time !== null)
         return new Date(time).toLocaleString('ru', option);
     },
-    sortedOnTable(item) {
-      if (!item.sorted) return;
-      this.arrSeparateAbc.forEach(i => i.showIcon = false);
-      item.showIcon = true;
-      switch (item.separated) {
-        case 'asc':
-          item.separated = 'desc';
-          break;
-        case 'desc':
-          item.separated = 'asc';
-          break;
-      }
-      this.setItemsSorted(item);
-    },
   },
   mounted() {
-    this.$store.dispatch('technologicalProcess/setItemsSorted', {column: 'operationCode', separated: 'asc', type: 'number'});
+
   },
   created() {
+    /*
+        if (this.$store.getters['authorization/isAuthenticated']) {
+          if (!this.$store.getters['order/getDownloadFlag']) this.$store.dispatch('order/findAll');
+          if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
+        }
+    */
+
     if (this.$store.getters['authorization/isAuthenticated']) {
-      if (!this.$store.getters['order/getDownloadFlag']) this.$store.dispatch('order/findAll');
       if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
-      if (!this.$store.getters['technologicalProcess/getDownloadFlag']) this.$store.dispatch('technologicalProcess/findAll');
+      if (this.$store.getters['order/getDownloadFlag']) {
+        this.order = cloneDeep(this.$store.getters['order/getOneItem'](this.orderId));
+      } else if (this.$store.getters['order/getDownloadPageableFlag']) {
+        this.order = cloneDeep(this.$store.getters['order/getOneItemPageable'](this.orderId));
+      } else {
+        this.$store.dispatch('order/findOne', this.orderId).then((data) => {
+          this.downloadOnceItem = true;
+          this.order = data;
+        });
+      }
     }
   }
 }
+
 </script>
 
 <style scoped>

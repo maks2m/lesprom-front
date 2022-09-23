@@ -12,12 +12,12 @@
     <form class="g-3" @submit.prevent="sendForm($event)">
       <div class="row">
         <div class="col-md-12"><h4>Основное</h4></div>
-<!--
-        <div class="col-md-12 mt-2" v-show="!isNewItem">
-          <label for="inputId" class="form-label">ID</label>
-          <input type="text" class="form-control" disabled readonly id="inputId" :value="item.id">
-        </div>
--->
+        <!--
+                <div class="col-md-12 mt-2" v-show="!isNewItem">
+                  <label for="inputId" class="form-label">ID</label>
+                  <input type="text" class="form-control" disabled readonly id="inputId" :value="item.id">
+                </div>
+        -->
 
         <div class="col-md-3 mt-2">
           <label for="inputNumberOrder" class="form-label">Номер заказа</label>
@@ -54,7 +54,7 @@
       <div class="row">
         <div class="col-md-12"><h4>Другое</h4></div>
 
-        <div class="col-md-6 mt-2">
+        <div class="col-md-6 mt-2" v-if="baguetteDownloadFlag && (orderDownloadFlag || orderDownloadPageableFlag || downloadOnceItem)">
           <label for="selectBaguette" class="form-label">Багет</label>
           <select id="selectBaguette"
                   class="form-select"
@@ -64,12 +64,12 @@
             <option v-for="baguette in baguettes"
                     :key="baguette.id"
                     :value="baguette"
-                    :selected="this.item.baguettes.some((baguetteItem) => baguetteItem.id === baguette.id)"
+                    :selected="item.baguettes.some((baguetteItem) => baguetteItem.id === baguette.id)"
             >{{ baguette.baguetteName }}
             </option>
           </select>
         </div>
-        <div class="col-md-6 mt-2">
+        <div class="col-md-6 mt-2" v-if="cuttersDownloadFlag && (orderDownloadFlag || orderDownloadPageableFlag || downloadOnceItem)">
           <label for="selectCutter" class="form-label">Фреза</label>
           <select id="selectCutter"
                   class="form-select"
@@ -79,7 +79,7 @@
             <option v-for="cutter in cutters"
                     :key="cutter.id"
                     :value="cutter"
-                    :selected="this.item.cutters.some((cutterItem) => cutterItem.id === cutter.id)"
+                    :selected="item.cutters.some((cutterItem) => cutterItem.id === cutter.id)"
             >{{ cutter.cutterName }}
             </option>
           </select>
@@ -150,7 +150,7 @@
       <div class="row">
         <div class="col-12">
           <button type="submit" class="btn btn-primary m-1">Сохранить</button>
-          <button type="reset" class="btn btn-danger m-1">Отмена</button>
+          <button type="button" class="btn btn-danger m-1" @click="cansel">Отмена</button>
         </div>
       </div>
     </form>
@@ -163,11 +163,13 @@
 <script>
 import {mapGetters, mapActions} from "vuex";
 import moment from "moment";
+import cloneDeep from "lodash.clonedeep";
 
 export default {
   name: "OrderEditView",
   data() {
     return {
+      downloadOnceItem: false,
       item: {
         id: '',
         numberOrder: '',
@@ -188,10 +190,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('baguette', {baguettes: 'getAllItems'}),
-    ...mapGetters('cutter', {cutters: 'getAllItems'}),
-    ...mapGetters('workplace', {workplaces: 'getAllItems'}),
-    ...mapGetters('employee', {employees: 'getAllItems'}),
+    ...mapGetters('order', {orderDownloadFlag: "getDownloadFlag", orderDownloadPageableFlag: "getDownloadPageableFlag",}),
+    ...mapGetters('baguette', {baguettes: 'getAllItems', baguetteDownloadFlag: "getDownloadFlag"}),
+    ...mapGetters('cutter', {cutters: 'getAllItems', cuttersDownloadFlag: "getDownloadFlag"}),
     orderId() {
       if (!this.isNewItem) return Number(this.$route.params.id);
     },
@@ -211,38 +212,40 @@ export default {
     _finishDate: {
       get() {
         if (this.item.finishDate !== '')
-          return moment(this.item.finishDate).format('YYYY-MM-DD');
+          return moment(this.item.startDate).format('YYYY-MM-DD');
       },
       set(value) {
-        let arrDate = [];
-        let date = new Date(Date.parse(value));
-        arrDate.push(date.getFullYear());
-        arrDate.push(date.getMonth() + 1);
-        arrDate.push(date.getDate());
-        this.item.finishDate = arrDate;
+        this.item.finishDate = Date.parse(value);
       },
     }
   },
   methods: {
-    ...mapActions('order', {addItem: 'add'}),
+    ...mapActions('order', {addItem: 'addPageable'}),
     sendForm() {
       this.addItem(this.item).then(() => {
         this.$store.dispatch('technologicalProcess/changeDownloadFlag', false);
       });
-      this.$router.push('/order-manager');
+      this.$router.go(-1);
+    },
+    cansel() {
+      this.$router.go(-1);
     },
   },
-  async created() {
+  created() {
     if (this.$store.getters['authorization/isAuthenticated']) {
       if (!this.$store.getters['baguette/getDownloadFlag']) this.$store.dispatch('baguette/findAll');
       if (!this.$store.getters['cutter/getDownloadFlag']) this.$store.dispatch('cutter/findAll');
-      if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
-      if (!this.$store.getters['employee/getDownloadFlag']) this.$store.dispatch('employee/findAll');
-      if (!this.$store.getters['order/getDownloadFlag']) {
-        await this.$store.dispatch('order/findAll');
-        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['order/getOneItem'](this.orderId));
-      } else {
-        if (!this.isNewItem) this.item = Object.assign({}, this.$store.getters['order/getOneItem'](this.orderId));
+      if (!this.isNewItem) {
+        if (this.$store.getters['order/getDownloadFlag']) {
+          this.item = cloneDeep(this.$store.getters['order/getOneItem'](this.orderId));
+        } else if (this.$store.getters['order/getDownloadPageableFlag']) {
+          this.item = cloneDeep(this.$store.getters['order/getOneItemPageable'](this.orderId));
+        } else {
+          this.$store.dispatch('order/findOnePageable', this.orderId).then((data) => {
+            this.downloadOnceItem = true;
+            this.item = cloneDeep(data);
+          });
+        }
       }
     }
   },

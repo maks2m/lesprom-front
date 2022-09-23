@@ -1,8 +1,8 @@
 import api from "@/services/api";
 
 export default {
-    setItemsSorted({commit}, paramSort) {
-        commit('setItemsSorted', paramSort);
+    changeUrlParam({commit}, payload) {
+        commit('changeUrlParam', payload);
     },
     addNew({commit}, item) {
         commit('addNew', item);
@@ -20,6 +20,7 @@ export default {
                 commit('addNew', response.data);
             } catch (e) {
                 console.log(errorText('add_new', state.URL) + e);
+                console.log(e);
             }
         } else {
             try {
@@ -27,6 +28,7 @@ export default {
                 commit('replace', response.data);
             } catch (e) {
                 console.log(errorText('replace', state.URL) + e);
+                console.log(e);
             }
         }
     },
@@ -36,15 +38,34 @@ export default {
             commit('remove', id);
         } catch (e) {
             console.log(errorText('remove', state.URL) + e);
+            console.log(e);
         }
     },
-    async findAll({commit, state}) {
+    async findOne({commit, getters}, id) {
         try {
-            const response = (await api.crud.getAll(state.URL));
-            commit('addAll', response.data);
-            commit('changeDownloadFlag', true);
+            const response = await api.crud.get(getters.getUrl, id);
+            if (getters.getDownloadFlag) {
+                commit('replace', response.data);
+            } else {
+                return response.data;
+            }
         } catch (e) {
-            console.log(errorText('find_all', state.URL) + e);
+            console.log(errorText('find_one', getters.getFullURL) + e);
+            console.log(e);
+        }
+    },
+    async findAll({commit, getters}) {
+        try {
+            const response = await api.crud.getAll(getters.getFullURL);
+            //console.log('INSTANCE1')
+            if (response.data.pageable === 'INSTANCE') {
+                //console.log('INSTANCE2')
+                commit('addAll', response.data.content);
+                commit('changeDownloadFlag', true);
+            }
+        } catch (e) {
+            console.log(errorText('find_all', getters.getFullURL) + e);
+            console.log(e);
         }
     },
 }
@@ -57,6 +78,8 @@ function errorText(type, url) {
             return 'error (store/' + url + '/replace): ';
         case 'find_all':
             return 'error (store/' + url + '/findAll): ';
+        case 'find_one':
+            return 'error (store/' + url + '/findOne): ';
         case 'add_new':
             return 'error (store/' + url + '/addNew): ';
     }

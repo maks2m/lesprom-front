@@ -1,11 +1,4 @@
 export default {
-    setItemsSorted(state, paramSort) {
-        if (paramSort.separated === 'asc') {
-            state.items.sort((a, b) => a[paramSort.column] > b[paramSort.column] ? 1 : -1);
-        } else if (paramSort.separated === 'desc') {
-            state.items.sort((a, b) => a[paramSort.column] < b[paramSort.column] ? 1 : -1);
-        }
-    },
     addAll(state, items) {
         state.items = items;
     },
@@ -23,7 +16,13 @@ export default {
             return o;
         });
     },
+
     changeDownloadFlag(state, status) {
         state.downloadFlag = status;
     },
+    changeUrlParam(state, payload) {
+        state.pageNo = payload.pageNo !== null ? payload.pageNo : state.pageNo;
+        state.pageSize = payload.pageSize !== null ? payload.pageSize : state.pageSize;
+        state.sortBy = payload.sortBy !== null ? payload.sortBy : state.sortBy;
+    }
 }

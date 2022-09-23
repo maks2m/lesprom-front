@@ -12,7 +12,7 @@
               v-for="item in menu"
               :key="item.text">
             <router-link class="nav-link"
-                         :to="{ name: item.route }"
+                         :to="{ name: item.route, query: item.query }"
                          exact-active-class="active"
                          v-if="checkAuthorization(item.access)">
               {{ item.text }}
@@ -54,16 +54,16 @@ export default {
         password: '',
       },
       menu: [
-        { route: 'order-manager', text: 'Заказы (менеджер)', access: ['ADMIN', 'MANAGER'] },
-        { route: 'order-technologist', text: 'Заказы (технолог)', access: ['ADMIN', 'TECHNOLOG'] },
-        { route: 'order-workplace', text: 'Заказы (участки)', access: ['ADMIN', 'USER'] },
-        { route: 'baguette', text: 'Багеты', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
-        { route: 'cutter', text: 'Фрезы', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
-        { route: 'workplace', text: 'Участки', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
-        { route: 'employee', text: 'Сотрудники', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
-        { route: 'user', text: 'User', access: ['ADMIN'] },
-        { route: 'role', text: 'Role', access: ['ADMIN'] },
-        { route: 'test', text: 'test', access: ['ADMIN'] },
+        { route: 'order-manager', query: { pageNo: 0, pageSize: 10, sortBy: 'id' }, text: 'Заказы (менеджер)', access: ['ADMIN', 'MANAGER'] },
+        { route: 'order-technologist', query: { pageNo: 0, pageSize: 10, sortBy: 'id' }, text: 'Заказы (технолог)', access: ['ADMIN', 'TECHNOLOG'] },
+        { route: 'order-workplace', query: {}, text: 'Заказы (участки)', access: ['ADMIN', 'USER'] },
+        { route: 'baguette', query: {}, text: 'Багеты', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
+        { route: 'cutter', query: {}, text: 'Фрезы', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
+        { route: 'workplace', query: {}, text: 'Участки', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
+        { route: 'employee', query: {}, text: 'Сотрудники', access: ['ADMIN', 'MANAGER', 'TECHNOLOG'] },
+        { route: 'user', query: {}, text: 'User', access: ['ADMIN'] },
+        { route: 'role', query: {}, text: 'Role', access: ['ADMIN'] },
+        { route: 'test', query: {}, text: 'test', access: ['ADMIN'] },
       ]
     }
   },
@@ -74,14 +74,14 @@ export default {
     login() {
       this.$load(() => {
         this.$store.dispatch('authorization/login', this.userForm).then(() => {
-          this.$router.push('/');
+          this.$router.push({ name: 'home' });
         });
       });
     },
     logout() {
       this.$load(() => {
         this.$store.dispatch('authorization/logout').then(() => {
-          this.$router.push('/');
+          this.$router.push({ name: 'home' });
         });
       });
     },

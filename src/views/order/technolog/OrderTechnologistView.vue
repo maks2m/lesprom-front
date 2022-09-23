@@ -9,8 +9,7 @@
       <thead class="table-info">
       <tr>
         <th v-for="item in arrSeparateAbc"
-            :key="item.column"
-            @click="sortedOnTable(item)">
+            :key="item.column">
           <div class="row">
             <div class="col-6">{{ item.text }}</div>
             <div v-show="item.showIcon" class="col-6">
@@ -23,50 +22,66 @@
         <th>Редактирование</th>
       </tr>
       </thead>
-      <tbody>
-      <tr v-for="(item) in orders" :key="item.id" v-if="orders.length">
-<!--          @dblclick="this.$router.push({ name: 'order-edit', params: {id: item.id} })">-->
-        <td v-text="item.numberOrder"></td>
-        <td v-text="item.numberOrderOther"></td>
-        <td v-for="workplace in workplaces">
-          <div v-for="technologicalProcess in _technologicalProcesses(item.id, workplace.id)">
-            <div class="btn-group m-1">
-              <div class="btn"
-                   :class="getClassBtnFindAndNotUndefined(technologicalProcess)"
-                   @click="addDateEmployee(technologicalProcess, item)">
-                {{ technologicalProcess.employee.fullName }}
-              </div>
-              <div class="btn-group">
-                <div class="btn btn-outline-danger" @click="delDateEmployee(technologicalProcess, item)">-</div>
+      <template v-if="downloadPageableFlag">
+        <tbody v-if="ordersPageable.length">
+
+        <tr v-for="(order) in ordersPageable" :key="order.id">
+          <!--          @dblclick="this.$router.push({ name: 'order-edit', params: {id: item.id} })">-->
+          <td v-text="order.numberOrder"></td>
+          <td v-text="order.numberOrderOther"></td>
+          <td v-for="workplace in workplaces">
+            <div v-for="technologicalProcess in order.technologicalProcesses.filter(t => t.workplace.id === workplace.id)">
+              <div class="btn-group m-1">
+                <div class="btn"
+                     :class="getClassBtnFindAndNotUndefined(technologicalProcess)"
+                     @click="addDateEmployee(technologicalProcess, order)">
+                  {{ technologicalProcess.employee.fullName }}
+                </div>
+                <div class="btn-group">
+                  <div class="btn btn-outline-danger" @click="delDateEmployee(technologicalProcess, order)">-</div>
+                </div>
               </div>
             </div>
-          </div>
-        </td>
+          </td>
 
-        <td>
-          <router-link class="btn btn-secondary m-1" :to="{ name: 'order-edit', params: {id: item.id} }">Редактировать
-            заказ
-          </router-link>
-          <router-link class="btn btn-info m-1"
-                       :to="{ name: 'order-add-employees', params: {id: item.id} }">
-            Добавить сотрудников
-          </router-link>
-        </td>
-      </tr>
-      <tr v-else>
-        <td>Список пуст!</td>
-      </tr>
-      </tbody>
+          <td>
+            <router-link class="btn btn-secondary m-1" :to="{ name: 'order-edit', params: {id: order.id} }">Редактировать
+              заказ
+            </router-link>
+            <router-link class="btn btn-info m-1"
+                         :to="{ name: 'order-add-employees', params: {id: order.id} }">
+              Добавить сотрудников
+            </router-link>
+          </td>
+        </tr>
+        </tbody>
+        <tbody v-else>
+        <tr>
+          <td colspan="20" class="text-center">Список пуст!</td>
+        </tr>
+        </tbody>
+      </template>
     </table>
+    <pagination v-if="downloadPageableFlag"
+                :totalPages="pageInfo.totalPages"
+                :perPage="pageInfo.pageSize"
+                :maxVisibleButtons="5"
+                :currentPage="pageInfo.pageNo + 1"
+                @pagechanged="onPageChange"
+    />
   </div>
 </template>
 
 <script>
 import {mapActions, mapGetters} from "vuex";
-import moment from "moment";
+import pagination from "@/components/Pagination";
+import cloneDeep from "lodash.clonedeep";
 
 export default {
   name: "OrderTechnologistView",
+  components: {
+    pagination
+  },
   data() {
     return {
       arrSeparateAbc: [
@@ -80,38 +95,31 @@ export default {
           type: 'text'
         },
       ],
-      itemsSorted: [],
       arrClassesBtn: [],
     }
   },
   computed: {
-    ...mapGetters('order', {orders: 'getAllItems'}),
-    ...mapGetters('technologicalProcess', {technologicalProcesses: 'getAllItems'}),
+    ...mapGetters('order', {
+      ordersPageable: 'getAllItemsPageable',
+      pageInfo: 'getPageInfo',
+      downloadPageableFlag: 'getDownloadPageableFlag'
+    }),
     ...mapGetters('workplace', {workplaces: 'getAllItems'}),
   },
   methods: {
-    ...mapActions('order', {setItemsSorted: 'setItemsSorted'}),
+    ...mapActions('order', {
+      changeUrlParam: 'changeUrlParam',
+      findAllPageable: 'findAllPageable'
+    }),
     ...mapActions('technologicalProcess', {updateTime: 'add'}),
 
-    _technologicalProcesses(orderId, workplaceId) {
-      return this.technologicalProcesses.filter(t => t.order.id === orderId && t.workplace.id === workplaceId);
-    },
-
-    /**
-     * функция собирает ID classBtn из ID order, ID workplace, ID employee
-     * @param technologicalProcess
-     * @returns {string}
-     */
-    calculateIdClassBtn(technologicalProcess) {
-      return technologicalProcess.id;
-    },
     /**
      * функция ищет по ID classBtn и проверяет его на undefined
      * @param technologicalProcess
      * @returns {[string]|[string]|[string]|*}
      */
     getClassBtnFindAndNotUndefined(technologicalProcess) {
-      const classBtn = this.arrClassesBtn.find(a => a.id === this.calculateIdClassBtn(technologicalProcess));
+      const classBtn = this.arrClassesBtn.find(a => a.id === technologicalProcess.id);
       if (classBtn !== undefined) return classBtn.arrClasses;
     },
 
@@ -122,7 +130,7 @@ export default {
      */
     setClassBtnToArr(technologicalProcess) {
       let newClassBtn = {};
-      const id = this.calculateIdClassBtn(technologicalProcess);
+      const id = technologicalProcess.id;
       if (technologicalProcess.timeStartWork === null && technologicalProcess.timeFinishWork === null) {
         newClassBtn = {id: id, arrClasses: ['btn-danger']};
       }
@@ -144,19 +152,23 @@ export default {
      * функция добавления времени взятия в работу и отработки технологической операции
      * так же стартует промис сохранения данных на сервер
      * и, после выполнения промиса, обновляется класс кнопки через массив arrClassesBtn
-     * @param technologicalProcess
-     * @param order
+     * @param technologicalProcess технологический процесс
+     * @param order заказ
      */
     addDateEmployee(technologicalProcess, order) {
-      let updateTechnologicalProcess = simpleClone(technologicalProcess, order.id);
+      let updateTechnologicalProcess = cloneDeep(technologicalProcess);
+      updateTechnologicalProcess.order = {id: order.id};
       if (updateTechnologicalProcess.timeStartWork === null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeStartWork = Date.now();
         this.updateTime(updateTechnologicalProcess).then(() => {
+
+          this.$store.dispatch('order/findOnePageable', order.id);
           this.setClassBtnToArr(updateTechnologicalProcess);
         });
       } else if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeFinishWork = Date.now();
         this.updateTime(updateTechnologicalProcess).then(() => {
+          this.$store.dispatch('order/findOnePageable', order.id);
           this.setClassBtnToArr(updateTechnologicalProcess);
         });
       }
@@ -169,78 +181,57 @@ export default {
      * @param order
      */
     delDateEmployee(technologicalProcess, order) {
-      let updateTechnologicalProcess = simpleClone(technologicalProcess, order.id);
+      let updateTechnologicalProcess = cloneDeep(technologicalProcess);
+      updateTechnologicalProcess.order = {id: order.id};
       if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork !== null) {
         updateTechnologicalProcess.timeFinishWork = null;
         this.updateTime(updateTechnologicalProcess).then(() => {
+          this.$store.dispatch('order/findOnePageable', order.id);
           this.setClassBtnToArr(updateTechnologicalProcess);
         });
       } else if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeStartWork = null;
         this.updateTime(updateTechnologicalProcess).then(() => {
+          this.$store.dispatch('order/findOnePageable', order.id);
           this.setClassBtnToArr(updateTechnologicalProcess);
         });
       }
     },
+    onPageChange(page) {
+      //this.findAllWithPaginationAndSorted({pageNo: page, pageSize: null, sortBy: null});
 
-    /**
-     * функция сортировки основных элементов таблицы
-     * @param item
-     */
-    sortedOnTable(item) {
-      if (!item.sorted) return;
-      this.arrSeparateAbc.forEach(i => i.showIcon = false);
-      item.showIcon = true;
-      switch (item.separated) {
-        case 'asc':
-          item.separated = 'desc';
-          break;
-        case 'desc':
-          item.separated = 'asc';
-          break;
-      }
-      this.setItemsSorted(item);
-    },
+      this.changeUrlParam({pageNo: page - 1, pageSize: null, sortBy: null});
+      this.findAllPageable().then(() => {
+        this.$router.push({name: 'order-manager', query: {pageNo: this.pageInfo.pageNo, pageSize: this.pageInfo.pageSize, sortBy: this.pageInfo.sortBy}})
+      });
+    }
   },
   mounted() {
-    this.$store.dispatch('workplace/setItemsSorted', {column: 'id', separated: 'asc', type: 'text'});
+
   },
   created() {
+    const urlParams = new URLSearchParams(window.location.search);
+    this.changeUrlParam({
+      pageNo: urlParams.get("pageNo") !== '' ? urlParams.get("pageNo") : -1,
+      pageSize: urlParams.get("pageSize") !== '' ? urlParams.get("pageSize") : '',
+      sortBy: urlParams.get("sortBy") !== '' ? urlParams.get("sortBy") : 'id',
+    });
     if (this.$store.getters['authorization/isAuthenticated']) {
-      if (!this.$store.getters['order/getDownloadFlag']) this.$store.dispatch('order/findAll');
-      if (!this.$store.getters['workplace/getDownloadFlag']) this.$store.dispatch('workplace/findAll');
-      if (!this.$store.getters['technologicalProcess/getDownloadFlag']) {
-        this.$store.dispatch('technologicalProcess/findAll').then(() => {
-          this.technologicalProcesses.forEach(t => this.setClassBtnToArr(t));
+      if (!this.$store.getters['order/getDownloadPageableFlag']) {
+        this.$store.dispatch('order/findAllPageable').then(() => {
+          this.ordersPageable.forEach(o => {
+            o.technologicalProcesses.forEach(t => this.setClassBtnToArr(t));
+          })
         });
       } else {
-        this.technologicalProcesses.forEach(t => this.setClassBtnToArr(t));
+        this.ordersPageable.forEach(o => {
+          o.technologicalProcesses.forEach(t => this.setClassBtnToArr(t));
+        });
       }
+      if (!this.$store.getters['workplace/getDownloadFlag'])
+        this.$store.dispatch('workplace/findAll');
     }
   },
-}
-
-/**
- * Функция создания простого клона объекта technologicalProcess
- * @param parent
- * @param orderId
- * @returns {{employee: {id: string}, workplace: {id: string}, order: {id: string}}}
- */
-function simpleClone(technologicalProcess, orderId) {
-  let clone = {
-    order: {id: ''},
-    employee: {id: ''},
-    workplace: {id: ''},
-  };
-  for (let key1 in technologicalProcess) {
-    if (!(technologicalProcess[key1] instanceof Object)) {
-      clone[key1] = technologicalProcess[key1];
-    }
-  }
-  clone.order.id = orderId;
-  clone.employee.id = technologicalProcess.employee.id;
-  clone.workplace.id = technologicalProcess.workplace.id;
-  return clone;
 }
 </script>
 

@@ -1,28 +1,28 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import store from "@/store";
 
-import HomeView from '../views/HomeView.vue'
-import OrderView from '../views/OrderView'
-import OrderTechnologistView from "@/views/OrderTechnologistView";
-import OrderWorkplaceView from "@/views/OrderWorkplaceView";
-import BaguetteView from '../views/BaguetteView'
-import CutterView from '../views/CutterView'
-import WorkplaceView from '../views/WorkplaceView'
-import EmployeeView from '../views/EmployeeView'
-import UserView from '../views/UserView'
-import RoleView from '../views/RoleView'
-import PageNotFoundView from '../views/PageNotFoundView'
+import HomeView from '@/views/HomeView.vue'
+import OrderManagerView from '@/views/order/manager/OrderManagerView'
+import OrderTechnologistView from "@/views/order/technolog/OrderTechnologistView";
+import OrderWorkplaceView from "@/views/order/workplace/OrderWorkplaceView";
+import BaguetteView from '@/views/baguette/BaguetteView'
+import CutterView from '@/views/cutter/CutterView'
+import WorkplaceView from '@/views/workplace/WorkplaceView'
+import EmployeeView from '@/views/employee/EmployeeView'
+import UserView from '@/views/user/UserView'
+import RoleView from '@/views/role/RoleView'
+import PageNotFoundView from '@/views/PageNotFoundView'
 import TestView from "@/views/TestView";
 
-import EmployeeEditView from "@/components/EmployeeEditView";
-import UserEditView from "@/components/UserEditView";
-import WorkplaceEditView from "@/components/WorkplaceEditView";
-import BaguetteEditView from "@/components/BaguetteEditView";
-import CutterEditView from "@/components/CutterEditView";
-import RoleEditView from "@/components/RoleEditView";
-import OrderEditView from "@/components/OrderEditView";
-import OrderWatchView from "@/components/OrderWatchView";
-import TechnologicalProcessEditView from "@/components/TechnologicalProcessEditView";
+import EmployeeEditView from "@/views/employee/EmployeeEditView";
+import UserEditView from "@/views/user/UserEditView";
+import WorkplaceEditView from "@/views/workplace/WorkplaceEditView";
+import BaguetteEditView from "@/views/baguette/BaguetteEditView";
+import CutterEditView from "@/views/cutter/CutterEditView";
+import RoleEditView from "@/views/role/RoleEditView";
+import OrderEditView from "@/views/order/OrderEditView";
+import OrderWatchView from "@/views/order/OrderWatchView";
+import TechnologicalProcessEditView from "@/views/technological-process/TechnologicalProcessEditView";
 
 const routes = [
   {
@@ -36,7 +36,7 @@ const routes = [
   {
     path: '/order-manager',
     name: 'order-manager',
-    component: OrderView,
+    component: OrderManagerView,
     meta: {
       requiresManager: true,
     }

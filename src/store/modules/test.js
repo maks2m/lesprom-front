@@ -7,7 +7,10 @@ export default {
     state: {
         items: [],
         downloadFlag: false,
-        URL: 'cutter'
+        URL: 'cutter',
+        pageNo: -1,
+        pageSize: '',
+        sortBy: 'id',
     },
     getters: getters,
     mutations: mutations,

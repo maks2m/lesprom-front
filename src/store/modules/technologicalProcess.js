@@ -7,7 +7,10 @@ export default {
     state: {
         items: [],
         downloadFlag: false,
-        URL: 'technological-process'
+        URL: 'technological-process',
+        pageNo: -1,
+        pageSize: '',
+        sortBy: 'operationCode',
     },
     getters: getters,
     mutations: mutations,

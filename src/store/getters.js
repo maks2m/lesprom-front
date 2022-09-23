@@ -11,4 +11,10 @@ export default {
     getDownloadFlag(state) {
         return state.downloadFlag;
     },
+    getUrl(state) {
+        return state.URL;
+    },
+    getFullURL(state) {
+        return state.URL + '?pageNo=' + state.pageNo + '&pageSize=' + state.pageSize + '&sortBy=' + state.sortBy;
+    },
 }
