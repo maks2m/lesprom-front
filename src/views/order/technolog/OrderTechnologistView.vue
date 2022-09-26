@@ -161,15 +161,19 @@ export default {
       if (updateTechnologicalProcess.timeStartWork === null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeStartWork = Date.now();
         this.updateTime(updateTechnologicalProcess).then(() => {
+          this.$store.dispatch('order/findOnePageable', order.id).then(() => {
+            this.$store.dispatch('order/changeDownloadOrdersOnWorkplaceFlag', false)
+            this.setClassBtnToArr(updateTechnologicalProcess);
+          });
 
-          this.$store.dispatch('order/findOnePageable', order.id);
-          this.setClassBtnToArr(updateTechnologicalProcess);
         });
       } else if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeFinishWork = Date.now();
         this.updateTime(updateTechnologicalProcess).then(() => {
-          this.$store.dispatch('order/findOnePageable', order.id);
-          this.setClassBtnToArr(updateTechnologicalProcess);
+          this.$store.dispatch('order/findOnePageable', order.id).then(() => {
+            this.$store.dispatch('order/changeDownloadOrdersOnWorkplaceFlag', false)
+            this.setClassBtnToArr(updateTechnologicalProcess);
+          });
         });
       }
     },
@@ -186,14 +190,18 @@ export default {
       if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork !== null) {
         updateTechnologicalProcess.timeFinishWork = null;
         this.updateTime(updateTechnologicalProcess).then(() => {
-          this.$store.dispatch('order/findOnePageable', order.id);
-          this.setClassBtnToArr(updateTechnologicalProcess);
+          this.$store.dispatch('order/findOnePageable', order.id).then(() => {
+            this.$store.dispatch('order/changeDownloadOrdersOnWorkplaceFlag', false)
+            this.setClassBtnToArr(updateTechnologicalProcess);
+          });
         });
       } else if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeStartWork = null;
         this.updateTime(updateTechnologicalProcess).then(() => {
-          this.$store.dispatch('order/findOnePageable', order.id);
-          this.setClassBtnToArr(updateTechnologicalProcess);
+          this.$store.dispatch('order/findOnePageable', order.id).then(() => {
+            this.$store.dispatch('order/changeDownloadOrdersOnWorkplaceFlag', false)
+            this.setClassBtnToArr(updateTechnologicalProcess);
+          });
         });
       }
     },

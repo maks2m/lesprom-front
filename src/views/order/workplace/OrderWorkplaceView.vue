@@ -166,17 +166,23 @@ export default {
       if (updateTechnologicalProcess.timeStartWork === null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeStartWork = Date.now();
         this.updateTime(updateTechnologicalProcess).then(() => {
-
-          this.$store.dispatch('order/findOnePageable', order.id);
-          this.setClassBtnToArr(updateTechnologicalProcess);
+          this.$store.dispatch('order/findAllOnWorkplace', this.selectedWorkplace.id).then(() => {
+            this.$store.dispatch('order/changeDownloadFlag', false)
+            this.$store.dispatch('order/changeDownloadPageableFlag', false)
+            this.setClassBtnToArr(updateTechnologicalProcess);
+          });
         });
       } else if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeFinishWork = Date.now();
         this.updateTime(updateTechnologicalProcess).then(() => {
-          this.$store.dispatch('order/findOnePageable', order.id);
-          this.setClassBtnToArr(updateTechnologicalProcess);
+          this.$store.dispatch('order/findAllOnWorkplace', this.selectedWorkplace.id).then(() => {
+            this.$store.dispatch('order/changeDownloadFlag', false)
+            this.$store.dispatch('order/changeDownloadPageableFlag', false)
+            this.setClassBtnToArr(updateTechnologicalProcess);
+          });
         });
       }
+      //this.$store.dispatch('order/changeDownloadOrdersOnWorkplaceFlag', false)
     },
 
     /**

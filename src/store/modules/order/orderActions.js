@@ -11,6 +11,9 @@ export default {
     changeDownloadPageableFlag({commit}, status) {
         commit('changeDownloadPageableFlag', status);
     },
+    changeDownloadOrdersOnWorkplaceFlag({commit}, status) {
+        commit('changeDownloadOrdersOnWorkplaceFlag', status);
+    },
     async addPageable({commit, state}, item) {
         if (item.id === '') {
             try {
