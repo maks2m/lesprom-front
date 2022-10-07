@@ -24,6 +24,7 @@
       </thead>
       <template v-if="downloadPageableFlag">
         <tbody v-if="ordersPageable.length">
+          
 
         <tr v-for="(order) in ordersPageable" :key="order.id">
           <!--          @dblclick="this.$router.push({ name: 'order-edit', params: {id: item.id} })">-->
