@@ -162,8 +162,7 @@ export default {
         updateTechnologicalProcess.timeStartWork = Date.now();
         this.updateTime(updateTechnologicalProcess).then(() => {
           this.$store.dispatch('order/findOnePageable', order.id).then(() => {
-            this.$store.dispatch('order/changeDownloadOrdersOnWorkplaceFlag', false)
-            this.setClassBtnToArr(updateTechnologicalProcess);
+            this.updateTemplate(updateTechnologicalProcess);
           });
 
         });
@@ -171,8 +170,7 @@ export default {
         updateTechnologicalProcess.timeFinishWork = Date.now();
         this.updateTime(updateTechnologicalProcess).then(() => {
           this.$store.dispatch('order/findOnePageable', order.id).then(() => {
-            this.$store.dispatch('order/changeDownloadOrdersOnWorkplaceFlag', false)
-            this.setClassBtnToArr(updateTechnologicalProcess);
+            this.updateTemplate(updateTechnologicalProcess);
           });
         });
       }
@@ -191,26 +189,31 @@ export default {
         updateTechnologicalProcess.timeFinishWork = null;
         this.updateTime(updateTechnologicalProcess).then(() => {
           this.$store.dispatch('order/findOnePageable', order.id).then(() => {
-            this.$store.dispatch('order/changeDownloadOrdersOnWorkplaceFlag', false)
-            this.setClassBtnToArr(updateTechnologicalProcess);
+            this.updateTemplate(updateTechnologicalProcess);
           });
         });
       } else if (updateTechnologicalProcess.timeStartWork !== null && updateTechnologicalProcess.timeFinishWork === null) {
         updateTechnologicalProcess.timeStartWork = null;
         this.updateTime(updateTechnologicalProcess).then(() => {
           this.$store.dispatch('order/findOnePageable', order.id).then(() => {
-            this.$store.dispatch('order/changeDownloadOrdersOnWorkplaceFlag', false)
-            this.setClassBtnToArr(updateTechnologicalProcess);
+            this.updateTemplate(updateTechnologicalProcess);
           });
         });
       }
+    },
+    updateTemplate(updateTechnologicalProcess) {
+      this.$store.dispatch('order/changeDownloadOrdersOnWorkplaceFlag', false)
+      this.setClassBtnToArr(updateTechnologicalProcess);
     },
     onPageChange(page) {
       //this.findAllWithPaginationAndSorted({pageNo: page, pageSize: null, sortBy: null});
 
       this.changeUrlParam({pageNo: page - 1, pageSize: null, sortBy: null});
       this.findAllPageable().then(() => {
-        this.$router.push({name: 'order-manager', query: {pageNo: this.pageInfo.pageNo, pageSize: this.pageInfo.pageSize, sortBy: this.pageInfo.sortBy}})
+        this.ordersPageable.forEach(o => {
+          o.technologicalProcesses.forEach(t => this.setClassBtnToArr(t));
+        })
+        this.$router.push({name: 'order-technologist', query: {pageNo: this.pageInfo.pageNo, pageSize: this.pageInfo.pageSize, sortBy: this.pageInfo.sortBy}})
       });
     }
   },
